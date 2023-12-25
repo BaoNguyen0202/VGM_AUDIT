@@ -7,11 +7,13 @@ import { ApiConstant, AppConstant } from '../const';
 import { useMMKVString } from 'react-native-mmkv';
 import { openImagePickerCamera } from '../utils/camera.utils';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { CheckboxInputComponent, NumberInputComponent, TextInputComponent } from './InputCom';
 
-const SubmitFormModal = ({ visible, onClose, onSubmit, productId, scenarioName }: any) => {
+const SubmitFormModal = ({ visible, onClose, onSubmit, productId, scenarioName, formQuestion }: any) => {
     const [productName, setProductName] = useState('');
     const [capturedImageUri, setCapturedImageUri] = useState('');
     const [userNameStore] = useMMKVString(AppConstant.userNameStore);
+    const [inputValues, setInputValues] = useState({});
     const apiKey = CommonUtils.storage.getString(AppConstant.Api_key);
     const apiSecret = CommonUtils.storage.getString(AppConstant.Api_secret);
 
@@ -39,7 +41,7 @@ const SubmitFormModal = ({ visible, onClose, onSubmit, productId, scenarioName }
                 throw new Error('API key or secret not available.');
             }
 
-            const response = await axios.post('http://10.0.0.67:8000/api/method/upload_file', formData, {
+            const response = await axios.post(ApiConstant.UPDATE_FILE_IMAGE, formData, {
                 headers: CommonUtils.Header_Image(apiKey, apiSecret),
             });
 
@@ -56,8 +58,13 @@ const SubmitFormModal = ({ visible, onClose, onSubmit, productId, scenarioName }
             throw error;
         }
     };
-
     const handleSubmit = async () => {
+        const entries = Object.entries(inputValues);
+
+        const form_question = entries.map(([question_text, value]) => ({
+            [question_text]: value,
+        }));
+
         try {
             const uploadedImageUri = await uploadImage();
 
@@ -72,6 +79,7 @@ const SubmitFormModal = ({ visible, onClose, onSubmit, productId, scenarioName }
                 scenario: scenarioName,
                 product: productId,
                 images: uploadedImageUri,
+                form_question: form_question,
             };
 
             const dataPost = {
@@ -90,7 +98,7 @@ const SubmitFormModal = ({ visible, onClose, onSubmit, productId, scenarioName }
             });
 
             if (response.status === 200) {
-                console.log('Submit successful.', response.data);
+                console.log('Submit successful.');
             } else {
                 throw new Error('Submit failed: Invalid status.');
             }
@@ -129,13 +137,51 @@ const SubmitFormModal = ({ visible, onClose, onSubmit, productId, scenarioName }
     const handleDeleteImage = () => {
         setCapturedImageUri('');
     };
-
+    const renderFormQuestions = () => {
+        return formQuestion.map((question: any) => {
+            switch (question.question_type) {
+                case 'Text':
+                    return (
+                        <TextInputComponent
+                            key={question.question_text}
+                            label={question.question_text}
+                            onChange={(text) => handleInputChange(question.question_text, text)}
+                        />
+                    );
+                case 'Number':
+                    return (
+                        <NumberInputComponent
+                            key={question.question_text}
+                            label={question.question_text}
+                            onChange={(value) => handleInputChange(question.question_text, value)}
+                        />
+                    );
+                case 'YesNo':
+                    return (
+                        <CheckboxInputComponent
+                            key={question.question_text}
+                            label={question.question_text}
+                            onChange={(value) => handleInputChange(question.question_text, value)}
+                        />
+                    );
+                default:
+                    return null;
+            }
+        });
+    };
+    const handleInputChange = (question_text: string, value: any) => {
+        setInputValues((prevValues) => ({
+            ...prevValues,
+            [question_text]: value,
+        }));
+    };
     return (
         <Modal visible={visible} animationType="slide" transparent>
             <TouchableWithoutFeedback onPress={onClose}>
                 <View style={styles.container}>
                     <View style={styles.formContainer}>
                         <Card>
+                            {renderFormQuestions()}
                             {capturedImageUri ? (
                                 <Card.Cover source={{ uri: capturedImageUri }} />
                             ) : (

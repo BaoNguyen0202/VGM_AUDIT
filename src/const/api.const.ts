@@ -27,3 +27,5 @@ export const PUT_USER_PROFILE = URL_PREFIX + '.user.update_profile';
 //GET
 export const GET_USER_PROFILE = URL + URL_PREFIX + '.user.get_employee_info';
 export const GET_SCENARIO = URL_PREFIX + '/api/resource/Scenario';
+export const GET_PRODUCT = URL + '/api/method/frappe.desk.form.load.getdoc?doctype=Scenario&name=';
+export const GET_SCENARIO_FIELDS = URL + '/api/resource/Scenario?fields=["*"]';

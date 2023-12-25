@@ -3,30 +3,36 @@ import { FlatList, StyleSheet, View } from 'react-native';
 import axios from 'axios';
 import { Button, Card, Modal, Portal, Text } from 'react-native-paper';
 import SubmitFormModal from '../components/SubmitForm';
+import { ApiConstant } from '../const';
 
 const Product = ({ route, navigation }: any) => {
     const [productData, setProductData] = useState<any[]>([]);
     const [isModalVisible, setModalVisible] = useState(false);
     const [nameProduct, setNameProduct] = useState<string | null>(null);
+    const [formQuestion, setFormQuestion] = useState<any[]>([]);
+    const fetchData = async () => {
+        try {
+            const { scenarioName } = route.params;
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const { scenarioName } = route.params;
+            const response = await axios.get(ApiConstant.GET_PRODUCT + scenarioName);
 
-                const response = await axios.get(
-                    `http://10.0.0.67:8000/api/method/frappe.desk.form.load.getdoc?doctype=Scenario&name=${scenarioName}`,
-                );
+            const responseData = response.data;
 
-                const responseData = response.data;
+            if (response.status === 200) {
                 // Lấy ra danh sách sản phẩm từ dữ liệu
                 const products = responseData.docs[0].products || [];
                 setProductData(products);
-            } catch (error) {
-                console.error('Error fetching product data:', error);
+                const fetchedFormQuestion = responseData.docs[0].form_question || [];
+                setFormQuestion(fetchedFormQuestion);
+            } else {
+                console.error('Error fetching product data:', response.statusText);
             }
-        };
+        } catch (error) {
+            console.error('Error fetching product data:', error);
+        }
+    };
 
+    useEffect(() => {
         fetchData();
     }, [route.params]);
     const handleSubmit = (name: string) => {
@@ -46,6 +52,7 @@ const Product = ({ route, navigation }: any) => {
                 onSubmit={handleSubmit}
                 productId={nameProduct}
                 scenarioName={route.params?.scenarioName || ''}
+                formQuestion={formQuestion}
             />
         );
     };

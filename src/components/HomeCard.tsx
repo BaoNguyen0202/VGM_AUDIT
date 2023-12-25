@@ -3,7 +3,7 @@ import { FlatList, StyleSheet, View } from 'react-native';
 import { Card, Text, Button, Avatar } from 'react-native-paper';
 import { openImagePickerCamera } from '../utils/camera.utils';
 import axios from 'axios';
-import { ScreenConstant } from '../const';
+import { ApiConstant, ScreenConstant } from '../const';
 
 const HomeCard = ({ navigation }: any) => {
     const LeftContent = (props: any) => <Avatar.Icon {...props} icon="map" />;
@@ -14,10 +14,9 @@ const HomeCard = ({ navigation }: any) => {
     }, []);
     const fetchData = async () => {
         try {
-            const response = await axios.get('http://10.0.0.67:8000/api/resource/Scenario?fields=["*"]');
+            const response = await axios.get(ApiConstant.GET_SCENARIO_FIELDS);
             const responseData = response.data.data;
             setScenarioData(responseData);
-            console.log(responseData);
         } catch (error) {
             console.error('Error fetching data:', error);
         }

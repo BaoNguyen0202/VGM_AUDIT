@@ -46,7 +46,7 @@ const HomeCard = ({ navigation }: any) => {
 
 const styles = StyleSheet.create({
     card: {
-        marginBottom: 8,
+        marginTop: 8,
     },
 });
 

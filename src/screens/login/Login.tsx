@@ -1,15 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { View, StyleSheet, Alert, Platform, Image } from 'react-native';
 import { TextInput, Button, Text, Provider as PaperProvider } from 'react-native-paper';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ApiConstant, AppConstant, ScreenConstant } from '../../const';
 import axios from 'axios';
-import { POST_USER_LOGIN } from '../../const/api.const';
 import { useMMKVString } from 'react-native-mmkv';
-import { ILoginResponse, KeyAbleProps } from '../../modal';
 import LinearGradient from 'react-native-linear-gradient';
-import { ImageAssets } from '../../assets';
-import { AppService } from '../../services';
 import { CommonUtils } from '../../utils';
 
 const LoginScreen = ({ navigation }: any) => {
@@ -22,7 +17,6 @@ const LoginScreen = ({ navigation }: any) => {
     useEffect(() => {
         const checkAutoLogin = async () => {
             try {
-                // Kiểm tra xem đã có thông tin đăng nhập trong store hay không
                 if (userNameStore && passwordStore) {
                     await handleAutoLogin(userNameStore, passwordStore);
                 }
@@ -32,7 +26,7 @@ const LoginScreen = ({ navigation }: any) => {
         };
 
         checkAutoLogin();
-    }, [userNameStore, passwordStore]); // Dependency array bao gồm userNameStore và passwordStore
+    }, [userNameStore, passwordStore]);
 
     const handleAutoLogin = async (autoUserName: string, autoPassword: string) => {
         try {

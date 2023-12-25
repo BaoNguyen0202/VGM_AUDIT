@@ -1,16 +1,61 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Modal, View, Text } from 'react-native';
-import { Button, Card, Checkbox, IconButton, TextInput } from 'react-native-paper';
+import { Button, Card, Checkbox, IconButton, TextInput, HelperText } from 'react-native-paper';
+
 const TextInputComponent = ({ label, onChange }: { label: string; onChange: (value: string) => void }) => {
-    return <TextInput label={label} onChangeText={(text) => onChange(text)} />;
+    const [inputValue, setInputValue] = useState<string>('');
+    const [error, setError] = useState<string | undefined>(undefined);
+
+    const handleInputChange = (text: string) => {
+        if (text.trim() === '') {
+            setError('This field is required');
+        } else {
+            setError(undefined);
+        }
+        setInputValue(text);
+        onChange(text);
+    };
+
+    return (
+        <>
+            <TextInput label={label} value={inputValue} onChangeText={handleInputChange} />
+            <HelperText type="error" visible={!!error}>
+                {error}
+            </HelperText>
+        </>
+    );
 };
 
 const NumberInputComponent = ({ label, onChange }: { label: string; onChange: (value: number) => void }) => {
-    return <TextInput label={label} keyboardType="numeric" onChangeText={(text) => onChange(Number(text))} />;
+    const [inputValue, setInputValue] = useState<string>('');
+    const [error, setError] = useState<string | undefined>(undefined);
+
+    const handleInputChange = (text: string) => {
+        const numericValue = Number(text);
+        if (isNaN(numericValue)) {
+            setError('Please enter a valid number');
+        } else if (text.trim() === '') {
+            setError('This field is required');
+        } else {
+            setError(undefined);
+        }
+        setInputValue(text);
+        onChange(numericValue);
+    };
+
+    return (
+        <>
+            <TextInput label={label} keyboardType="numeric" value={inputValue} onChangeText={handleInputChange} />
+            <HelperText type="error" visible={!!error}>
+                {error}
+            </HelperText>
+        </>
+    );
 };
 
 const CheckboxInputComponent = ({ label, onChange }: { label: string; onChange: (value: string) => void }) => {
-    const [selectedValue, setSelectedValue] = React.useState<string>('');
+    const [selectedValue, setSelectedValue] = useState<string>('');
+
     const handleYesButtonPress = () => {
         setSelectedValue('Yes');
         onChange('Yes');

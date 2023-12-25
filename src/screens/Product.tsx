@@ -13,12 +13,10 @@ const Product = ({ route, navigation }: any) => {
     const fetchData = async () => {
         try {
             const { scenarioName } = route.params;
-            console.log(scenarioName);
 
             const response = await axios.get(ApiConstant.GET_PRODUCT + scenarioName);
 
             const responseData = response.data;
-            console.log('dataa', responseData);
 
             if (response.status === 200) {
                 // Lấy ra danh sách sản phẩm từ dữ liệu

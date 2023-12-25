@@ -141,7 +141,6 @@ const SubmitFormModal = ({ visible, onClose, onSubmit, productId, scenarioName, 
             setFormAnswers((prevAnswers) => {
                 const updatedAnswers = [...prevAnswers];
                 updatedAnswers[existingAnswerIndex].question_value = value;
-                console.log('Updated Answers:', updatedAnswers);
                 return updatedAnswers;
             });
         } else {

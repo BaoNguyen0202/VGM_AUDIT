@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { View, StyleSheet, Alert, Platform, Image } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, StyleSheet, Alert, Platform } from 'react-native';
 import { TextInput, Button, Text, Provider as PaperProvider } from 'react-native-paper';
 import { ApiConstant, AppConstant, ScreenConstant } from '../../const';
 import axios from 'axios';
@@ -52,13 +52,12 @@ const LoginScreen = ({ navigation }: any) => {
             console.error('Auto Login failed:', error);
         }
     };
+
     const handleLogin = async () => {
         try {
             const response = await fetch(ApiConstant.POST_USER_LOGIN, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     usr: userName,
                     pwd: password,
@@ -66,9 +65,8 @@ const LoginScreen = ({ navigation }: any) => {
                     device_id: fcmToken ?? '12345',
                 }),
             });
-            if (response.status === 200) {
-                console.log(response.status);
 
+            if (response.status === 200) {
                 const result = await response.json();
                 Alert.alert('Success');
 
@@ -76,38 +74,28 @@ const LoginScreen = ({ navigation }: any) => {
                 CommonUtils.storage.set(AppConstant.Api_secret, result.result.key_details.api_secret);
                 setUserNameStore(userName);
                 setPasswordStore(password);
-                console.log('api_key:', result.result.key_details.api_key);
-                console.log('api_secret:', result.result.key_details.api_secret);
 
                 await CommonUtils.dismissKeyboard(() => {
                     navigation.navigate(ScreenConstant.ROOT);
                 });
-                // setUserName('');
-                // setPassword('');
             } else {
                 console.error('Login failed:', await response.json());
-
                 Alert.alert('Login Failed', 'Invalid username or password.');
             }
         } catch (error) {
             console.error('Error during login:', error);
-
             Alert.alert('Error', 'An error occurred during login. Please try again later.');
         }
     };
+
     return (
         <LinearGradient colors={['#1abc9c', '#3498db']} style={styles.linearGradient}>
             <View style={styles.container}>
-                <TextInput
-                    label="Name"
-                    value={userName}
-                    onChangeText={(text) => setUserName(text)}
-                    style={styles.input}
-                />
+                <TextInput label="Name" value={userName} onChangeText={setUserName} style={styles.input} />
                 <TextInput
                     label="Password"
                     value={password}
-                    onChangeText={(text) => setPassword(text)}
+                    onChangeText={setPassword}
                     secureTextEntry
                     style={styles.input}
                 />

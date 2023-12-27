@@ -5,10 +5,10 @@ import axios from 'axios';
 import { CommonUtils } from '../utils';
 import { ApiConstant, AppConstant } from '../const';
 import { useMMKVString } from 'react-native-mmkv';
-import { openImagePickerCamera } from '../utils/camera.utils';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CheckboxInputComponent, NumberInputComponent, TextInputComponent } from './InputCom';
 import { FormAnswer } from '../modal';
+import { openImagePickerCamera } from '../utils/camera.utils';
 
 const SubmitFormModal = ({ visible, onClose, onSubmit, productId, scenarioName, formQuestion }: any) => {
     const [productName, setProductName] = useState('');
@@ -22,7 +22,6 @@ const SubmitFormModal = ({ visible, onClose, onSubmit, productId, scenarioName, 
     const uploadImage = async () => {
         try {
             if (!capturedImageUri) throw new Error('No image to upload');
-            let img = 'https://pos.nvncdn.com/bfafb3-133431/ps/20230208_OLcUsxfgs1EH0I6j.jpeg';
             const fileExtension = capturedImageUri.split('.').pop();
             const fileName = `my_profile_${Date.now()}.${fileExtension}`;
             const formData = new FormData();
@@ -61,7 +60,6 @@ const SubmitFormModal = ({ visible, onClose, onSubmit, productId, scenarioName, 
         try {
             setLoading(true);
             const uploadedImageUri = await uploadImage();
-
             if (!uploadedImageUri) throw new Error('Error uploading image or image not uploaded successfully');
 
             const data = {
@@ -101,9 +99,7 @@ const SubmitFormModal = ({ visible, onClose, onSubmit, productId, scenarioName, 
     const handleCheckin = async () => {
         try {
             const granted = await PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.CAMERA);
-
-            if (granted) openCamera();
-            else requestCameraPermission();
+            granted ? openCamera() : requestCameraPermission();
         } catch (error) {
             console.error('Error checking or requesting camera permission:', error);
         }
@@ -150,38 +146,22 @@ const SubmitFormModal = ({ visible, onClose, onSubmit, productId, scenarioName, 
                 question_name: question_text,
                 question_value: value,
             };
-
             setFormAnswers((prevAnswers) => [...prevAnswers, currentAnswer]);
         }
     };
 
     const renderFormQuestions = () => {
         return formQuestion.map((question: any) => {
+            const key = question.question_text;
+            const onChange = (value: any) => handleInputChange(question.question_text, value);
+
             switch (question.question_type) {
                 case 'Text':
-                    return (
-                        <TextInputComponent
-                            key={question.question_text}
-                            label={question.question_text}
-                            onChange={(value) => handleInputChange(question.question_text, value)}
-                        />
-                    );
+                    return <TextInputComponent key={key} label={key} onChange={onChange} />;
                 case 'Number':
-                    return (
-                        <NumberInputComponent
-                            key={question.question_text}
-                            label={question.question_text}
-                            onChange={(value) => handleInputChange(question.question_text, value)}
-                        />
-                    );
+                    return <NumberInputComponent key={key} label={key} onChange={onChange} />;
                 case 'YesNo':
-                    return (
-                        <CheckboxInputComponent
-                            key={question.question_text}
-                            label={question.question_text}
-                            onChange={(value) => handleInputChange(question.question_text, value)}
-                        />
-                    );
+                    return <CheckboxInputComponent key={key} label={key} onChange={onChange} />;
                 default:
                     return null;
             }

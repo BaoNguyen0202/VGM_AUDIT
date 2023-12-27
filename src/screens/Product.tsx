@@ -5,7 +5,7 @@ import { ActivityIndicator, Button, Card, Modal, Portal, Text } from 'react-nati
 import SubmitFormModal from '../components/SubmitForm';
 import { ApiConstant } from '../const';
 
-const Product = ({ route, navigation }: any) => {
+const Product = ({ route }: any) => {
     const [productData, setProductData] = useState<any[]>([]);
     const [isModalVisible, setModalVisible] = useState(false);
     const [nameProduct, setNameProduct] = useState<string | null>(null);
@@ -15,16 +15,13 @@ const Product = ({ route, navigation }: any) => {
     const fetchData = async () => {
         try {
             const { scenarioName } = route.params;
-
             const response = await axios.get(ApiConstant.GET_PRODUCT + scenarioName);
-
             const responseData = response.data;
 
             if (response.status === 200) {
-                const products = responseData.docs[0].products || [];
+                const { products = [], form_question = [] } = responseData.docs[0];
                 setProductData(products);
-                const fetchedFormQuestion = responseData.docs[0].form_question || [];
-                setFormQuestion(fetchedFormQuestion);
+                setFormQuestion(form_question);
             } else {
                 console.error('Error fetching product data:', response.statusText);
             }
@@ -38,6 +35,7 @@ const Product = ({ route, navigation }: any) => {
     useEffect(() => {
         fetchData();
     }, [route.params]);
+
     const handleSubmit = (name: string) => {
         setNameProduct(name);
         setModalVisible(true);
@@ -47,18 +45,17 @@ const Product = ({ route, navigation }: any) => {
         setModalVisible(false);
         setNameProduct(null);
     };
-    const renderModalContent = () => {
-        return (
-            <SubmitFormModal
-                visible={isModalVisible}
-                onClose={hideModal}
-                onSubmit={handleSubmit}
-                productId={nameProduct}
-                scenarioName={route.params?.scenarioName || ''}
-                formQuestion={formQuestion}
-            />
-        );
-    };
+
+    const renderModalContent = () => (
+        <SubmitFormModal
+            visible={isModalVisible}
+            onClose={hideModal}
+            onSubmit={handleSubmit}
+            productId={nameProduct}
+            scenarioName={route.params?.scenarioName || ''}
+            formQuestion={formQuestion}
+        />
+    );
 
     const renderItem = ({ item }: any) => (
         <Card style={styles.card}>

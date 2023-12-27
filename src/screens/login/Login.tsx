@@ -53,31 +53,48 @@ const LoginScreen = ({ navigation }: any) => {
         }
     };
     const handleLogin = async () => {
-        const response = await axios.post(ApiConstant.POST_USER_LOGIN, {
-            usr: userName,
-            pwd: password,
-            device_name: Platform.OS,
-            device_id: fcmToken ?? '',
-        });
-        if (response.status === ApiConstant.STT_OK) {
-            const result = response.data.result;
-
-            CommonUtils.storage.set(AppConstant.Api_key, result.key_details.api_key);
-            CommonUtils.storage.set(AppConstant.Api_secret, result.key_details.api_secret);
-            setUserNameStore(userName);
-            setPasswordStore(password);
-            console.log('api_key:', result.key_details.api_key);
-            console.log('api_secret:', result.key_details.api_secret);
-            await CommonUtils.dismissKeyboard(() => {
-                navigation.navigate(ScreenConstant.ROOT);
+        try {
+            const response = await fetch(ApiConstant.POST_USER_LOGIN, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    usr: userName,
+                    pwd: password,
+                    device_name: Platform.OS,
+                    device_id: fcmToken ?? '12345',
+                }),
             });
-            // setUserName('');
-            // setPassword('');
-        } else {
-            console.error('Login failed:', response.data);
+            if (response.status === 200) {
+                console.log(response.status);
+
+                const result = await response.json();
+                Alert.alert('Success');
+
+                CommonUtils.storage.set(AppConstant.Api_key, result.result.key_details.api_key);
+                CommonUtils.storage.set(AppConstant.Api_secret, result.result.key_details.api_secret);
+                setUserNameStore(userName);
+                setPasswordStore(password);
+                console.log('api_key:', result.result.key_details.api_key);
+                console.log('api_secret:', result.result.key_details.api_secret);
+
+                await CommonUtils.dismissKeyboard(() => {
+                    navigation.navigate(ScreenConstant.ROOT);
+                });
+                // setUserName('');
+                // setPassword('');
+            } else {
+                console.error('Login failed:', await response.json());
+
+                Alert.alert('Login Failed', 'Invalid username or password.');
+            }
+        } catch (error) {
+            console.error('Error during login:', error);
+
+            Alert.alert('Error', 'An error occurred during login. Please try again later.');
         }
     };
-
     return (
         <LinearGradient colors={['#1abc9c', '#3498db']} style={styles.linearGradient}>
             <View style={styles.container}>

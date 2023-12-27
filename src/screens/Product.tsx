@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 import axios from 'axios';
-import { Button, Card, Modal, Portal, Text } from 'react-native-paper';
+import { ActivityIndicator, Button, Card, Modal, Portal, Text } from 'react-native-paper';
 import SubmitFormModal from '../components/SubmitForm';
 import { ApiConstant } from '../const';
 
@@ -10,6 +10,8 @@ const Product = ({ route, navigation }: any) => {
     const [isModalVisible, setModalVisible] = useState(false);
     const [nameProduct, setNameProduct] = useState<string | null>(null);
     const [formQuestion, setFormQuestion] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+
     const fetchData = async () => {
         try {
             const { scenarioName } = route.params;
@@ -19,7 +21,6 @@ const Product = ({ route, navigation }: any) => {
             const responseData = response.data;
 
             if (response.status === 200) {
-                // Lấy ra danh sách sản phẩm từ dữ liệu
                 const products = responseData.docs[0].products || [];
                 setProductData(products);
                 const fetchedFormQuestion = responseData.docs[0].form_question || [];
@@ -29,6 +30,8 @@ const Product = ({ route, navigation }: any) => {
             }
         } catch (error) {
             console.error('Error fetching product data:', error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -72,15 +75,18 @@ const Product = ({ route, navigation }: any) => {
     );
 
     return (
-        <View>
-            <FlatList
-                data={productData}
-                renderItem={renderItem}
-                keyExtractor={(item) => item.name}
-                contentContainerStyle={styles.flatListContainer}
-                ListEmptyComponent={<Text>No products found.</Text>}
-            />
-
+        <View style={styles.container}>
+            {loading ? (
+                <ActivityIndicator style={styles.loader} animating={true} color={'#000'} size="large" />
+            ) : (
+                <FlatList
+                    data={productData}
+                    renderItem={renderItem}
+                    keyExtractor={(item) => item.name}
+                    contentContainerStyle={styles.flatListContainer}
+                    ListEmptyComponent={<Text>No products found.</Text>}
+                />
+            )}
             <Portal>
                 <Modal visible={isModalVisible} onDismiss={hideModal}>
                     {renderModalContent()}
@@ -91,8 +97,12 @@ const Product = ({ route, navigation }: any) => {
 };
 
 const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+    },
     card: {
         marginTop: 8,
+        marginBottom: 5,
     },
     flatListContainer: {
         paddingHorizontal: 16,
@@ -100,6 +110,11 @@ const styles = StyleSheet.create({
     modalContent: {
         backgroundColor: 'white',
         padding: 20,
+    },
+    loader: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
 });
 

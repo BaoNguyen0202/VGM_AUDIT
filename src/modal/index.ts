@@ -185,3 +185,11 @@ export interface UserData {
     first_name: string;
     username: string;
 }
+export interface FormAnswer {
+    docstatus: number;
+    doctype: string;
+    parentfield: string;
+    parenttype: string;
+    question_name: string;
+    question_value: any;
+}

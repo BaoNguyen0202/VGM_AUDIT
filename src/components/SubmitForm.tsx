@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, StyleSheet, View, TouchableWithoutFeedback, PermissionsAndroid, Keyboard } from 'react-native';
-import { Button, Card } from 'react-native-paper';
+import { Modal, StyleSheet, View, TouchableWithoutFeedback, PermissionsAndroid, Keyboard, Alert } from 'react-native';
+import { ActivityIndicator, Button, Card, MD2Colors } from 'react-native-paper';
 import axios from 'axios';
 import { CommonUtils } from '../utils';
 import { ApiConstant, AppConstant } from '../const';
@@ -8,15 +8,7 @@ import { useMMKVString } from 'react-native-mmkv';
 import { openImagePickerCamera } from '../utils/camera.utils';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CheckboxInputComponent, NumberInputComponent, TextInputComponent } from './InputCom';
-
-interface FormAnswer {
-    docstatus: number;
-    doctype: string;
-    parentfield: string;
-    parenttype: string;
-    question_name: string;
-    question_value: any;
-}
+import { FormAnswer } from '../modal';
 
 const SubmitFormModal = ({ visible, onClose, onSubmit, productId, scenarioName, formQuestion }: any) => {
     const [productName, setProductName] = useState('');
@@ -25,11 +17,12 @@ const SubmitFormModal = ({ visible, onClose, onSubmit, productId, scenarioName, 
     const [formAnswers, setFormAnswers] = useState<FormAnswer[]>([]);
     const apiKey = CommonUtils.storage.getString(AppConstant.Api_key);
     const apiSecret = CommonUtils.storage.getString(AppConstant.Api_secret);
+    const [loading, setLoading] = useState(false);
 
     const uploadImage = async () => {
         try {
             if (!capturedImageUri) throw new Error('No image to upload');
-
+            let img = 'https://pos.nvncdn.com/bfafb3-133431/ps/20230208_OLcUsxfgs1EH0I6j.jpeg';
             const fileExtension = capturedImageUri.split('.').pop();
             const fileName = `my_profile_${Date.now()}.${fileExtension}`;
             const formData = new FormData();
@@ -66,6 +59,7 @@ const SubmitFormModal = ({ visible, onClose, onSubmit, productId, scenarioName, 
 
     const handleSubmit = async () => {
         try {
+            setLoading(true);
             const uploadedImageUri = await uploadImage();
 
             if (!uploadedImageUri) throw new Error('Error uploading image or image not uploaded successfully');
@@ -98,6 +92,9 @@ const SubmitFormModal = ({ visible, onClose, onSubmit, productId, scenarioName, 
             onClose();
         } catch (error) {
             console.error('Error submitting form:', error);
+            Alert.alert('Submit Failed', 'Submit failed. Please try again.');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -196,10 +193,19 @@ const SubmitFormModal = ({ visible, onClose, onSubmit, productId, scenarioName, 
             <TouchableWithoutFeedback onPress={onClose}>
                 <View style={styles.container}>
                     <View style={styles.formContainer}>
-                        <Card>
+                        {loading && (
+                            <ActivityIndicator
+                                animating={true}
+                                color={'#FFF'}
+                                size={'large'}
+                                style={styles.activiticator}
+                            />
+                        )}
+                        <Card style={{ backgroundColor: 'white', borderRadius: 0, shadowColor: 'white' }}>
+                            <Card.Title title="Form submit!" />
                             {renderFormQuestions()}
                             {capturedImageUri ? (
-                                <Card.Cover source={{ uri: capturedImageUri }} />
+                                <Card.Cover style={styles.image} source={{ uri: capturedImageUri }} />
                             ) : (
                                 <Card.Content>
                                     <Card.Title title="No Image" />
@@ -226,11 +232,12 @@ const SubmitFormModal = ({ visible, onClose, onSubmit, productId, scenarioName, 
                                 <Button mode="contained-tonal" onPress={onClose}>
                                     Cancel
                                 </Button>
+
                                 <Button
                                     mode="contained"
                                     onPress={handleSubmit}
                                     style={[styles.button, !capturedImageUri && styles.disabledButton]}
-                                    disabled={!capturedImageUri}
+                                    disabled={!capturedImageUri || loading}
                                 >
                                     Submit
                                 </Button>
@@ -251,15 +258,29 @@ const styles = StyleSheet.create({
     },
     formContainer: {
         backgroundColor: 'white',
-        padding: 20,
-        width: '80%',
-        borderRadius: 10,
+        width: '100%',
+        height: '100%',
     },
     button: {
         backgroundColor: '#1abc9c',
     },
     disabledButton: {
         opacity: 0.5,
+    },
+    image: {
+        marginHorizontal: 45,
+    },
+    activiticator: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        position: 'absolute',
+        zIndex: 999,
+        alignSelf: 'center',
+        top: 0,
+        bottom: 0,
+        left: 0,
+        right: 0,
     },
 });
 

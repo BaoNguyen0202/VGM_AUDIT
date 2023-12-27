@@ -13,7 +13,7 @@ export const STT_NOT_FOUND = 404;
 export const STT_REQUEST_TIME_OUT = 408;
 export const STT_INTERNAL_SERVER = 500;
 export const STT_NOT_MODIFIED = 304;
-const URL = 'http://10.0.0.67:8000';
+const URL = 'http://cloud.vgm.ai:8000';
 const URL_PREFIX = '/api/method/my_app';
 //POST_OLD
 export const POST_USER_LOGOUT = URL_PREFIX + '.auth.logout';

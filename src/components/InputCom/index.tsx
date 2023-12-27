@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Modal, View, Text } from 'react-native';
+import { Modal, View, Text, StyleSheet } from 'react-native';
 import { Button, Card, Checkbox, IconButton, TextInput, HelperText } from 'react-native-paper';
 
 const TextInputComponent = ({ label, onChange }: { label: string; onChange: (value: string) => void }) => {
@@ -18,7 +18,7 @@ const TextInputComponent = ({ label, onChange }: { label: string; onChange: (val
 
     return (
         <>
-            <TextInput label={label} value={inputValue} onChangeText={handleInputChange} />
+            <TextInput style={styles.textinput} label={label} value={inputValue} onChangeText={handleInputChange} />
             <HelperText type="error" visible={!!error}>
                 {error}
             </HelperText>
@@ -45,7 +45,13 @@ const NumberInputComponent = ({ label, onChange }: { label: string; onChange: (v
 
     return (
         <>
-            <TextInput label={label} keyboardType="numeric" value={inputValue} onChangeText={handleInputChange} />
+            <TextInput
+                style={styles.textinput}
+                label={label}
+                keyboardType="numeric"
+                value={inputValue}
+                onChangeText={handleInputChange}
+            />
             <HelperText type="error" visible={!!error}>
                 {error}
             </HelperText>
@@ -68,8 +74,8 @@ const CheckboxInputComponent = ({ label, onChange }: { label: string; onChange: 
 
     return (
         <View>
-            <Text>{label}</Text>
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Text style={styles.yesNo}>{label}</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginHorizontal: 8 }}>
                 <IconButton
                     icon="thumb-up"
                     iconColor={selectedValue === 'Yes' ? 'green' : 'grey'}
@@ -86,5 +92,13 @@ const CheckboxInputComponent = ({ label, onChange }: { label: string; onChange: 
         </View>
     );
 };
-
+const styles = StyleSheet.create({
+    textinput: {
+        marginHorizontal: 16,
+    },
+    yesNo: {
+        marginHorizontal: 16,
+        marginTop: 8,
+    },
+});
 export { TextInputComponent, NumberInputComponent, CheckboxInputComponent };

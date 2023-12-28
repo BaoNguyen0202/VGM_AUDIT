@@ -4,6 +4,7 @@ import axios from 'axios';
 import { ActivityIndicator, Button, Card, Modal, Portal, Text } from 'react-native-paper';
 import SubmitFormModal from '../components/SubmitForm';
 import { ApiConstant } from '../const';
+import { openImagePickerCamera } from '../utils/camera.utils';
 
 const Product = ({ route }: any) => {
     const [productData, setProductData] = useState<any[]>([]);
@@ -11,6 +12,7 @@ const Product = ({ route }: any) => {
     const [nameProduct, setNameProduct] = useState<string | null>(null);
     const [formQuestion, setFormQuestion] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [capturedImageUri, setCapturedImageUri] = useState('');
 
     const fetchData = async () => {
         try {
@@ -45,7 +47,13 @@ const Product = ({ route }: any) => {
         setModalVisible(false);
         setNameProduct(null);
     };
-
+    const handleCheckin = (name: string) => {
+        console.log(name);
+        openImagePickerCamera((uri: any) => {
+            setCapturedImageUri(uri);
+            console.log(uri);
+        });
+    };
     const renderModalContent = () => (
         <SubmitFormModal
             visible={isModalVisible}
@@ -63,7 +71,9 @@ const Product = ({ route }: any) => {
                 <Text variant="titleLarge">{item.product_name}</Text>
             </Card.Content>
             <Card.Actions>
-                <Button mode="contained-tonal">Checkin</Button>
+                <Button mode="contained-tonal" onPress={() => handleCheckin(item.product_name)}>
+                    Checkin
+                </Button>
                 <Button buttonColor="#1abc9c" onPress={() => handleSubmit(item.product_name)}>
                     Submit
                 </Button>

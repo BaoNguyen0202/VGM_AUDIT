@@ -68,8 +68,6 @@ const LoginScreen = ({ navigation }: any) => {
 
             if (response.status === 200) {
                 const result = await response.json();
-                Alert.alert('Success');
-
                 CommonUtils.storage.set(AppConstant.Api_key, result.result.key_details.api_key);
                 CommonUtils.storage.set(AppConstant.Api_secret, result.result.key_details.api_secret);
                 setUserNameStore(userName);

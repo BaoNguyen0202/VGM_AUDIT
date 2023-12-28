@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, Image, TouchableNativeFeedback } from 'react-native';
 import {
     createDrawerNavigator,
@@ -24,9 +24,12 @@ import MapLibre from '../components/MapLibre';
 import LoginScreen from '../screens/login/Login';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ProfileScreen from '../screens/ProfileScreen';
-import { AppConstant, ScreenConstant } from '../const';
+import { ApiConstant, AppConstant, ScreenConstant } from '../const';
 import { useMMKVString } from 'react-native-mmkv';
 import Product from '../screens/Product';
+import { UserData } from '../modal';
+import { CommonUtils } from '../utils';
+import axios from 'axios';
 
 const Drawer = createDrawerNavigator();
 
@@ -35,6 +38,30 @@ const CustomDrawerContent = ({ navigation }: DrawerContentComponentProps) => {
     const [loading, setLoading] = useState(false);
     const [userNameStore, setUserNameStore] = useMMKVString(AppConstant.userNameStore);
     const [passwordStore, setPasswordStore] = useMMKVString(AppConstant.passwordStore);
+    const [userData, setUserData] = useState<UserData | null>(null);
+
+    const fetchUserData = async () => {
+        try {
+            const apiKey = await CommonUtils.storage.getString(AppConstant.Api_key);
+            const apiSecret = await CommonUtils.storage.getString(AppConstant.Api_secret);
+
+            if (apiKey && apiSecret) {
+                const response = await axios.get(ApiConstant.GET_USER_PROFILE, {
+                    headers: {
+                        Authorization: CommonUtils.Auth_header(apiKey, apiSecret).Authorization,
+                    },
+                });
+
+                if (response.status === 200) {
+                    setUserData(response.data.result as UserData);
+                } else {
+                    console.error('Failed to fetch user :', response.data);
+                }
+            }
+        } catch (error) {
+            console.error('Error fetching user:', error);
+        }
+    };
     const closeMenu = () => {
         setMenuVisible(false);
     };
@@ -62,35 +89,34 @@ const CustomDrawerContent = ({ navigation }: DrawerContentComponentProps) => {
         closeMenu();
         navigation.navigate(ScreenConstant.CHANGE_PASS);
     };
-
+    useEffect(() => {
+        fetchUserData();
+    }, []);
     return (
         <LinearGradient colors={['#1abc9c', '#3498db']} style={styles.linearGradient}>
             <DrawerContentScrollView style={styles.container}>
                 <View style={styles.drawerContent}>
                     <View style={styles.userInfoSection}>
                         <TouchableNativeFeedback onPress={handleChangeprofile}>
-                            <Avatar.Image
-                                source={{
-                                    uri: 'https://toigingiuvedep.vn/wp-content/uploads/2022/03/hinh-nen-phong-canh-2-820x513.jpg',
-                                }}
-                                size={80}
-                            />
+                            {userData && <Avatar.Text label={userData.full_name[0]} />}
                         </TouchableNativeFeedback>
 
-                        <View style={{ marginLeft: 15, flexDirection: 'column' }}>
-                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                <TouchableNativeFeedback onPress={handleChangeprofile}>
-                                    <Title style={styles.title}>Bảo Nguyễn</Title>
-                                </TouchableNativeFeedback>
-                                <IconButton
-                                    icon="dots-vertical"
-                                    iconColor="white"
-                                    size={25}
-                                    onPress={() => setMenuVisible(true)}
-                                />
+                        {userData && (
+                            <View style={{ marginLeft: 10, flexDirection: 'column' }}>
+                                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                    <TouchableNativeFeedback onPress={handleChangeprofile}>
+                                        <Title style={styles.title}>{userData.full_name}</Title>
+                                    </TouchableNativeFeedback>
+                                    <IconButton
+                                        icon="dots-vertical"
+                                        iconColor="white"
+                                        size={25}
+                                        onPress={() => setMenuVisible(true)}
+                                    />
+                                </View>
+                                <Caption style={styles.caption}>{userData.email}</Caption>
                             </View>
-                            <Caption style={styles.caption}>@baonq</Caption>
-                        </View>
+                        )}
                     </View>
                     <DrawerItem
                         label="Home"

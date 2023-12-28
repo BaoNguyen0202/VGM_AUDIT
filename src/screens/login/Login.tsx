@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, Alert, Platform } from 'react-native';
+import { View, StyleSheet, Alert, Platform, Image } from 'react-native';
 import { TextInput, Button, Text, Provider as PaperProvider } from 'react-native-paper';
 import { ApiConstant, AppConstant, ScreenConstant } from '../../const';
 import axios from 'axios';
 import { useMMKVString } from 'react-native-mmkv';
 import LinearGradient from 'react-native-linear-gradient';
 import { CommonUtils } from '../../utils';
+import { InitLogo } from '../../assets/images';
+import { ImageAssets } from '../../assets';
 
 const LoginScreen = ({ navigation }: any) => {
     const [userName, setUserName] = useState('');
@@ -13,6 +15,7 @@ const LoginScreen = ({ navigation }: any) => {
     const [fcmToken] = useMMKVString('FCM_TOKEN');
     const [userNameStore, setUserNameStore] = useMMKVString(AppConstant.userNameStore);
     const [passwordStore, setPasswordStore] = useMMKVString(AppConstant.passwordStore);
+    const [secureTextEntry, setSecureTextEntry] = useState(true);
 
     useEffect(() => {
         const checkAutoLogin = async () => {
@@ -87,15 +90,22 @@ const LoginScreen = ({ navigation }: any) => {
     };
 
     return (
-        <LinearGradient colors={['#1abc9c', '#3498db']} style={styles.linearGradient}>
+        <LinearGradient colors={['#3498db', '#1abc9c']} style={styles.linearGradient}>
             <View style={styles.container}>
+                <Image source={ImageAssets.InitLogo} style={styles.logo} />
                 <TextInput label="Name" value={userName} onChangeText={setUserName} style={styles.input} />
                 <TextInput
                     label="Password"
                     value={password}
                     onChangeText={setPassword}
-                    secureTextEntry
+                    secureTextEntry={secureTextEntry}
                     style={styles.input}
+                    right={
+                        <TextInput.Icon
+                            icon={secureTextEntry ? 'eye-off' : 'eye'}
+                            onPress={() => setSecureTextEntry(!secureTextEntry)}
+                        />
+                    }
                 />
                 <Button mode="contained" onPress={handleLogin} style={styles.button}>
                     Log In
@@ -107,6 +117,7 @@ const LoginScreen = ({ navigation }: any) => {
                     </Text>
                 </Text>
             </View>
+            <Text style={styles.versionText}>VGM Version 1.0.0</Text>
         </LinearGradient>
     );
 };
@@ -134,6 +145,18 @@ const styles = StyleSheet.create({
     },
     linearGradient: {
         flex: 1,
+    },
+    logo: {
+        resizeMode: 'contain',
+        alignSelf: 'center',
+        width: '70%',
+        top: -100,
+    },
+    versionText: {
+        color: 'white',
+        fontSize: 16,
+        textAlign: 'center',
+        marginBottom: 16,
     },
 });
 

@@ -1,3 +1,3 @@
-const InitLogo = require('./Logo.png');
+const InitLogo = require('./logo.png');
 const Avatar = require('./image.jpg');
 export { InitLogo, Avatar };

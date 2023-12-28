@@ -14,7 +14,7 @@ const ForgotPasswordScreen = ({ navigation }: any) => {
     };
 
     return (
-        <LinearGradient colors={['#1abc9c', '#3498db']} style={styles.linearGradient}>
+        <LinearGradient colors={['#3498db', '#1abc9c']} style={styles.linearGradient}>
             <View style={styles.container}>
                 <TextInput label="Email" value={email} onChangeText={(text) => setEmail(text)} style={styles.input} />
                 <Button mode="contained" onPress={handleForgotPassword} style={styles.button}>

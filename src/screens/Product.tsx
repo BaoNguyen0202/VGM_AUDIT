@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 import axios from 'axios';
-import { ActivityIndicator, Button, Card, Modal, Portal, Text } from 'react-native-paper';
+import { ActivityIndicator, Avatar, Button, Card, Modal, Portal, Text } from 'react-native-paper';
 import SubmitFormModal from '../components/SubmitForm';
 import { ApiConstant } from '../const';
 import { openImagePickerCamera } from '../utils/camera.utils';
@@ -13,6 +13,7 @@ const Product = ({ route }: any) => {
     const [formQuestion, setFormQuestion] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [capturedImageUri, setCapturedImageUri] = useState('');
+    const LeftContent = (props: any) => <Avatar.Icon {...props} icon="briefcase" />;
 
     const fetchData = async () => {
         try {
@@ -67,6 +68,7 @@ const Product = ({ route }: any) => {
 
     const renderItem = ({ item }: any) => (
         <Card style={styles.card}>
+            <Card.Title title="Sản phẩm" left={LeftContent} />
             <Card.Content>
                 <Text variant="titleLarge">{item.product_name}</Text>
             </Card.Content>

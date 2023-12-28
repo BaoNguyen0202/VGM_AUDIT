@@ -65,9 +65,7 @@ const CustomDrawerContent = ({ navigation }: DrawerContentComponentProps) => {
     const closeMenu = () => {
         setMenuVisible(false);
     };
-    const handleTitlePress = () => {
-        setMenuVisible(true);
-    };
+
     const handleChangeprofile = () => {
         closeMenu();
         navigation.navigate(ScreenConstant.EDIT_PROFILE);
@@ -98,16 +96,22 @@ const CustomDrawerContent = ({ navigation }: DrawerContentComponentProps) => {
                 <View style={styles.drawerContent}>
                     <View style={styles.userInfoSection}>
                         <TouchableNativeFeedback onPress={handleChangeprofile}>
-                            {userData && <Avatar.Text label={userData.full_name[0]} />}
+                            <Avatar.Image
+                                source={{
+                                    uri: 'https://toigingiuvedep.vn/wp-content/uploads/2022/03/hinh-nen-phong-canh-2-820x513.jpg',
+                                }}
+                                size={80}
+                            />
                         </TouchableNativeFeedback>
 
-                        {userData && (
+                        {userData ? (
                             <View style={{ marginLeft: 10, flexDirection: 'column' }}>
                                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                     <TouchableNativeFeedback onPress={handleChangeprofile}>
                                         <Title style={styles.title}>{userData.full_name}</Title>
                                     </TouchableNativeFeedback>
                                     <IconButton
+                                        style={{ marginLeft: -3 }}
                                         icon="dots-vertical"
                                         iconColor="white"
                                         size={25}
@@ -115,6 +119,22 @@ const CustomDrawerContent = ({ navigation }: DrawerContentComponentProps) => {
                                     />
                                 </View>
                                 <Caption style={styles.caption}>{userData.email}</Caption>
+                            </View>
+                        ) : (
+                            <View style={{ marginLeft: 10, flexDirection: 'column' }}>
+                                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                    <TouchableNativeFeedback onPress={handleChangeprofile}>
+                                        <Title style={styles.title}>Bảo Nguyễn</Title>
+                                    </TouchableNativeFeedback>
+                                    <IconButton
+                                        style={{ marginLeft: -3 }}
+                                        icon="dots-vertical"
+                                        iconColor="white"
+                                        size={25}
+                                        onPress={() => setMenuVisible(true)}
+                                    />
+                                </View>
+                                <Caption style={styles.caption}>baonq@</Caption>
                             </View>
                         )}
                     </View>

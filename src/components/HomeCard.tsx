@@ -5,7 +5,7 @@ import axios from 'axios';
 import { ApiConstant, ScreenConstant } from '../const';
 
 const HomeCard = ({ navigation }: any) => {
-    const LeftContent = (props: any) => <Avatar.Icon {...props} icon="map" />;
+    const LeftContent = (props: any) => <Avatar.Icon {...props} icon="animation-outline" />;
     const [scenarioData, setScenarioData] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -96,6 +96,7 @@ const HomeCard = ({ navigation }: any) => {
                     data={scenarioData}
                     renderItem={renderItem}
                     keyExtractor={(item) => item.name.toString()}
+                    contentContainerStyle={styles.flatListContainer}
                     onEndReachedThreshold={0.1}
                 />
             )}
@@ -140,6 +141,9 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
+    },
+    flatListContainer: {
+        paddingHorizontal: 16,
     },
 });
 

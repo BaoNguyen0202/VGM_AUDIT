@@ -91,8 +91,8 @@ const LoginScreen = ({ navigation }: any) => {
 
     return (
         <LinearGradient colors={['#3498db', '#1abc9c']} style={styles.linearGradient}>
+            <Image source={ImageAssets.InitLogo} style={styles.logo} />
             <View style={styles.container}>
-                <Image source={ImageAssets.InitLogo} style={styles.logo} />
                 <TextInput label="Name" value={userName} onChangeText={setUserName} style={styles.input} />
                 <TextInput
                     label="Password"
@@ -130,6 +130,7 @@ const styles = StyleSheet.create({
     },
     input: {
         marginBottom: 16,
+        backgroundColor: '#34cadb',
     },
     button: {
         marginTop: 8,
@@ -150,7 +151,7 @@ const styles = StyleSheet.create({
         resizeMode: 'contain',
         alignSelf: 'center',
         width: '70%',
-        top: -100,
+        top: '10%',
     },
     versionText: {
         color: 'white',

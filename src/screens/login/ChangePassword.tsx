@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Image } from 'react-native';
 import { TextInput, Button, Text } from 'react-native-paper';
 import { ScreenConstant } from '../../const';
 import LinearGradient from 'react-native-linear-gradient';
+import { ImageAssets } from '../../assets';
 
 const ChangePasswordScreen = ({ navigation }: any) => {
     const [currentPassword, setCurrentPassword] = useState('');
@@ -23,6 +24,8 @@ const ChangePasswordScreen = ({ navigation }: any) => {
 
     return (
         <LinearGradient colors={['#3498db', '#1abc9c']} style={styles.linearGradient}>
+            <Image source={ImageAssets.InitLogo} style={styles.logo} />
+
             <View style={styles.container}>
                 <TextInput
                     label="Current password"
@@ -55,6 +58,7 @@ const ChangePasswordScreen = ({ navigation }: any) => {
                     </Text>
                 </Text>
             </View>
+            <Text style={styles.versionText}>VGM Version 1.0.0</Text>
         </LinearGradient>
     );
 };
@@ -67,6 +71,7 @@ const styles = StyleSheet.create({
     },
     input: {
         marginBottom: 16,
+        backgroundColor: '#34cadb',
     },
     button: {
         marginTop: 8,
@@ -82,6 +87,18 @@ const styles = StyleSheet.create({
     },
     linearGradient: {
         flex: 1,
+    },
+    logo: {
+        resizeMode: 'contain',
+        alignSelf: 'center',
+        width: '70%',
+        top: '10%',
+    },
+    versionText: {
+        color: 'white',
+        fontSize: 16,
+        textAlign: 'center',
+        marginBottom: 16,
     },
 });
 

@@ -104,8 +104,8 @@ const ProfileScreen = () => {
                                 )}
                                 <Button
                                     style={styles.button}
-                                    mode="contained-tonal"
-                                    buttonColor="#1abc9c"
+                                    mode="elevated"
+                                    buttonColor="#3498db"
                                     textColor="#FFF"
                                     onPress={isEditing ? handleSavePress : handleEditPress}
                                 >
@@ -129,16 +129,16 @@ const styles = StyleSheet.create({
     },
     container: {
         marginTop: '20%',
-        backgroundColor: 'white',
-        height: '100%',
-        borderTopStartRadius: 60,
-        borderTopEndRadius: 60,
+        backgroundColor: '#036a91',
+        height: '50%',
+        borderRadius: 40,
     },
     text: {
         marginBottom: 10,
         paddingHorizontal: 50,
         paddingVertical: 8,
         top: 16,
+        color: 'white',
     },
     retryContainer: {
         flex: 1,

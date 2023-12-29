@@ -5,6 +5,7 @@ import { ActivityIndicator, Avatar, Button, Card, Modal, Portal, Text } from 're
 import SubmitFormModal from '../components/SubmitForm';
 import { ApiConstant } from '../const';
 import { openImagePickerCamera } from '../utils/camera.utils';
+import LinearGradient from 'react-native-linear-gradient';
 
 const Product = ({ route }: any) => {
     const [productData, setProductData] = useState<any[]>([]);
@@ -84,24 +85,26 @@ const Product = ({ route }: any) => {
     );
 
     return (
-        <View style={styles.container}>
-            {loading ? (
-                <ActivityIndicator style={styles.loader} animating={true} color={'#000'} size="large" />
-            ) : (
-                <FlatList
-                    data={productData}
-                    renderItem={renderItem}
-                    keyExtractor={(item) => item.name}
-                    contentContainerStyle={styles.flatListContainer}
-                    ListEmptyComponent={<Text>No products found.</Text>}
-                />
-            )}
-            <Portal>
-                <Modal visible={isModalVisible} onDismiss={hideModal}>
-                    {renderModalContent()}
-                </Modal>
-            </Portal>
-        </View>
+        <LinearGradient colors={['#3498db', '#1abc9c']} style={styles.linearGradient}>
+            <View style={styles.container}>
+                {loading ? (
+                    <ActivityIndicator style={styles.loader} animating={true} color={'#000'} size="large" />
+                ) : (
+                    <FlatList
+                        data={productData}
+                        renderItem={renderItem}
+                        keyExtractor={(item) => item.name}
+                        contentContainerStyle={styles.flatListContainer}
+                        ListEmptyComponent={<Text>No products found.</Text>}
+                    />
+                )}
+                <Portal>
+                    <Modal visible={isModalVisible} onDismiss={hideModal}>
+                        {renderModalContent()}
+                    </Modal>
+                </Portal>
+            </View>
+        </LinearGradient>
     );
 };
 
@@ -124,6 +127,9 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    linearGradient: {
+        flex: 1,
     },
 });
 

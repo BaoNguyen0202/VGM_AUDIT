@@ -3,6 +3,7 @@ import { FlatList, StyleSheet, View, ActivityIndicator, Alert } from 'react-nati
 import { Card, Text, Avatar, Button, IconButton } from 'react-native-paper';
 import axios from 'axios';
 import { ApiConstant, ScreenConstant } from '../const';
+import LinearGradient from 'react-native-linear-gradient';
 
 const HomeCard = ({ navigation }: any) => {
     const LeftContent = (props: any) => <Avatar.Icon {...props} icon="animation-outline" />;
@@ -88,27 +89,29 @@ const HomeCard = ({ navigation }: any) => {
     );
 
     return (
-        <View style={styles.container}>
-            {loading ? (
-                <ActivityIndicator style={styles.loader} animating={true} color={'#000'} size="large" />
-            ) : (
-                <FlatList
-                    data={scenarioData}
-                    renderItem={renderItem}
-                    keyExtractor={(item) => item.name.toString()}
-                    contentContainerStyle={styles.flatListContainer}
-                    onEndReachedThreshold={0.1}
-                />
-            )}
-            {!loading && scenarioData.length === 0 && (
-                <View style={styles.retryContainer}>
-                    <Text style={styles.retryText}>No data available. Please retry.</Text>
-                    <Button mode="contained" onPress={handleRetry} style={styles.retryButton}>
-                        Retry
-                    </Button>
-                </View>
-            )}
-        </View>
+        <LinearGradient colors={['#3498db', '#1abc9c']} style={styles.linearGradient}>
+            <View style={styles.container}>
+                {loading ? (
+                    <ActivityIndicator style={styles.loader} animating={true} color={'#000'} size="large" />
+                ) : (
+                    <FlatList
+                        data={scenarioData}
+                        renderItem={renderItem}
+                        keyExtractor={(item) => item.name.toString()}
+                        contentContainerStyle={styles.flatListContainer}
+                        onEndReachedThreshold={0.1}
+                    />
+                )}
+                {!loading && scenarioData.length === 0 && (
+                    <View style={styles.retryContainer}>
+                        <Text style={styles.retryText}>No data available. Please retry.</Text>
+                        <Button mode="contained" onPress={handleRetry} style={styles.retryButton}>
+                            Retry
+                        </Button>
+                    </View>
+                )}
+            </View>
+        </LinearGradient>
     );
 };
 
@@ -144,6 +147,9 @@ const styles = StyleSheet.create({
     },
     flatListContainer: {
         paddingHorizontal: 16,
+    },
+    linearGradient: {
+        flex: 1,
     },
 });
 

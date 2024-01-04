@@ -5,3 +5,4 @@ export const FORGOTPASSWORD = 'ForgotPassWord';
 export const HOME = 'Home';
 export const EDIT_PROFILE = 'Profile';
 export const PRODUCT = 'Product';
+export const SCENARIO = 'Scenario';

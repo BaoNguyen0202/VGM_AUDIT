@@ -27,8 +27,10 @@ export const POST_USER_LOGIN = URL + URL_PREFIX + '.auth.login';
 export const POST_SAVE_DOCS = URL + '/api/method/frappe.desk.form.save.savedocs';
 export const UPDATE_FILE_IMAGE = URL + '/api/method/upload_file';
 export const DELETE_SCENARIO = URL + '/api/method/frappe.client.delete';
+export const POST_ALL_SCENARIO = URL + '/api/method/frappe.desk.reportview.get';
+
 //GET
 export const GET_USER_PROFILE = URL + URL_PREFIX + '.user.get_employee_info';
-export const GET_SCENARIO = URL_PREFIX + '/api/resource/Scenario';
-export const GET_PRODUCT = URL + '/api/method/frappe.desk.form.load.getdoc?doctype=Scenario&name=';
+export const GET_SCENARIO = URL + '/api/method/frappe.desk.form.load.getdoc?doctype=Retail_Audit&name=';
+export const GET_PRODUCT = URL + '/api/method/frappe.desk.form.load.getdoc?';
 export const GET_SCENARIO_FIELDS = URL + '/api/resource/Scenario?fields=["*"]';

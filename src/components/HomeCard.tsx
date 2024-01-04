@@ -2,23 +2,48 @@ import React, { useEffect, useState } from 'react';
 import { FlatList, StyleSheet, View, ActivityIndicator, Alert } from 'react-native';
 import { Card, Text, Avatar, Button, IconButton } from 'react-native-paper';
 import axios from 'axios';
-import { ApiConstant, ScreenConstant } from '../const';
+import { ApiConstant, AppConstant, ScreenConstant } from '../const';
 import LinearGradient from 'react-native-linear-gradient';
+import { CommonUtils } from '../utils';
 
 const HomeCard = ({ navigation }: any) => {
     const LeftContent = (props: any) => <Avatar.Icon {...props} icon="animation-outline" />;
     const [scenarioData, setScenarioData] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        fetchData();
-    }, []);
-
     const fetchData = async () => {
         try {
-            const response = await axios.get(ApiConstant.GET_SCENARIO_FIELDS);
-            const responseData = response.data.data;
-            setScenarioData(responseData);
+            const apiKey = CommonUtils.storage.getString(AppConstant.Api_key);
+            const apiSecret = CommonUtils.storage.getString(AppConstant.Api_secret);
+
+            if (!apiKey || !apiSecret) {
+                throw new Error('API key or secret not available');
+            }
+
+            const data = {
+                doctype: 'Retail_Audit',
+                fields: ['name', 'retail_name', 'modified'],
+                order_by: 'modified desc',
+                filters: [],
+                start: 0,
+                page_length: 4,
+            };
+
+            const response = await axios.post(ApiConstant.POST_ALL_SCENARIO, data, {
+                headers: CommonUtils.Auth_header(apiKey, apiSecret),
+            });
+
+            if (response.data?.message?.values) {
+                const formattedData = response.data.message.values.map((value: any) => ({
+                    name: value[0],
+                    retail_name: value[1],
+                    modified: value[2],
+                }));
+
+                setScenarioData(formattedData);
+            } else {
+                console.error('Invalid response format:', response.data);
+            }
         } catch (error) {
             console.error('Error fetching data:', error);
         } finally {
@@ -32,52 +57,61 @@ const HomeCard = ({ navigation }: any) => {
     };
 
     const goToProductScreen = (scenarioName: string) => {
-        navigation.navigate(ScreenConstant.PRODUCT, { scenarioName });
+        navigation.navigate(ScreenConstant.SCENARIO, { scenarioName });
     };
+
     const handleDeleteScenario = (nameId: string) => {
-        Alert.alert(
-            'Confirm Delete',
-            'Are you sure you want to delete this scenario?',
-            [
-                {
-                    text: 'No',
-                    style: 'cancel',
-                },
-                {
-                    text: 'Yes',
-                    onPress: () => performDeleteScenario(nameId),
-                },
-            ],
-            { cancelable: false },
-        );
+        console.log(nameId);
+        Alert.alert('Currently developing, please return later!');
+        // Alert.alert(
+        //     'Confirm Delete',
+        //     'Are you sure you want to delete this scenario?',
+        //     [
+        //         {
+        //             text: 'No',
+        //             style: 'cancel',
+        //         },
+        //         {
+        //             text: 'Yes',
+        //             onPress: () => performDeleteScenario(nameId),
+        //         },
+        //     ],
+        //     { cancelable: false },
+        // );
     };
+
     const performDeleteScenario = async (nameId: string) => {
         try {
             const formData = new FormData();
             formData.append('doctype', 'Scenario');
             formData.append('name', nameId);
-            const response = await axios.delete(ApiConstant.DELETE_SCENARIO, {
+            await axios.delete(ApiConstant.DELETE_SCENARIO, {
                 data: formData,
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
+                headers: { 'Content-Type': 'multipart/form-data' },
             });
+
             console.log('Deleting scenario:', nameId);
             fetchData();
         } catch (error) {
             console.error('Error deleting scenario:', error);
         }
     };
-    const UpdateScenario = async (nameId: string) => {
+
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    const UpdateScenario = (nameId: string) => {
         console.log(nameId);
         Alert.alert('Currently developing, please return later!');
     };
+
     const renderItem = ({ item }: any) => (
         <Card style={styles.card} onPress={() => goToProductScreen(item.name)}>
-            <Card.Title title="Kịch bản" left={LeftContent} />
+            <Card.Title title="Điểm bán" left={LeftContent} />
             <Card.Content>
-                <Text variant="titleLarge">{item.scenario_name}</Text>
-                <Text variant="bodyMedium">{item.description}</Text>
+                <Text variant="titleLarge">{item.retail_name}</Text>
+                <Text variant="bodyMedium">{item.modified}</Text>
             </Card.Content>
             <Card.Actions>
                 <View style={styles.iconContainer}>

@@ -12,6 +12,7 @@ import HomeCard from './src/components/HomeCard';
 import Home from './src/screens/HomeScreen';
 import CameraModal from './src/components/CameraModal';
 import SubmitFormModal from './src/components/SubmitForm';
+import ScenarioScreen from './src/screens/ScenatioScreen';
 
 MapLibreGL.setAccessToken(null);
 const Stack = createStackNavigator();
@@ -31,6 +32,7 @@ const App = () => {
                     <Stack.Screen name="Root" component={RootNavigator} options={{ headerShown: false }} />
                     <Stack.Screen name="Product" component={Product} options={{ headerShown: false }} />
                     <Stack.Screen name="Home" component={Home} options={{ headerShown: false }} />
+                    <Stack.Screen name="Scenario" component={ScenarioScreen} options={{ headerShown: false }} />
                 </Stack.Navigator>
             </NavigationContainer>
         </PaperProvider>

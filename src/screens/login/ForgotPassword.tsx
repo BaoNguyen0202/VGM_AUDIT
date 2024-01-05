@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, Image } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, StyleSheet, Image, Keyboard, KeyboardEvent } from 'react-native';
 import { TextInput, Button, Text } from 'react-native-paper';
 import { ScreenConstant } from '../../const';
 import LinearGradient from 'react-native-linear-gradient';
@@ -7,11 +7,29 @@ import { ImageAssets } from '../../assets';
 
 const ForgotPasswordScreen = ({ navigation }: any) => {
     const [email, setEmail] = useState('');
+    const [isKeyboardVisible, setKeyboardVisible] = useState(false);
 
     const handleForgotPassword = () => {
         // Thực hiện xác nhận email và gửi yêu cầu quên mật khẩu
         // Sau khi yêu cầu quên mật khẩu được gửi đi thành công, bạn có thể hiển thị thông báo hoặc điều hướng người dùng đến một màn hình khác
         console.log('Yêu cầu quên mật khẩu cho email:', email);
+    };
+    useEffect(() => {
+        const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', handleKeyboardDidShow);
+        const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', handleKeyboardDidHide);
+
+        return () => {
+            keyboardDidShowListener.remove();
+            keyboardDidHideListener.remove();
+        };
+    }, []);
+
+    const handleKeyboardDidShow = (event: KeyboardEvent) => {
+        setKeyboardVisible(true);
+    };
+
+    const handleKeyboardDidHide = () => {
+        setKeyboardVisible(false);
     };
 
     return (
@@ -30,7 +48,7 @@ const ForgotPasswordScreen = ({ navigation }: any) => {
                     </Text>
                 </Text>
             </View>
-            <Text style={styles.versionText}>VGM Version 1.0.0</Text>
+            {!isKeyboardVisible && <Text style={styles.versionText}>VGM Version 0.0.1</Text>}
         </LinearGradient>
     );
 };

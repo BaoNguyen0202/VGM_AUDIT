@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, Image } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, StyleSheet, Image, Keyboard, KeyboardEvent } from 'react-native';
 import { TextInput, Button, Text } from 'react-native-paper';
 import { ScreenConstant } from '../../const';
 import LinearGradient from 'react-native-linear-gradient';
@@ -9,6 +9,7 @@ const ChangePasswordScreen = ({ navigation }: any) => {
     const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmNewPassword, setConfirmNewPassword] = useState('');
+    const [isKeyboardVisible, setKeyboardVisible] = useState(false);
 
     const handleChangePassword = () => {
         // Thực hiện xác nhận mật khẩu hiện tại và các kiểm tra thay đổi mật khẩu khác ở đây
@@ -20,6 +21,23 @@ const ChangePasswordScreen = ({ navigation }: any) => {
             // Hiển thị thông báo lỗi khi mật khẩu mới không khớp
             console.error('Lỗi: Mật khẩu mới không khớp');
         }
+    };
+    useEffect(() => {
+        const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', handleKeyboardDidShow);
+        const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', handleKeyboardDidHide);
+
+        return () => {
+            keyboardDidShowListener.remove();
+            keyboardDidHideListener.remove();
+        };
+    }, []);
+
+    const handleKeyboardDidShow = (event: KeyboardEvent) => {
+        setKeyboardVisible(true);
+    };
+
+    const handleKeyboardDidHide = () => {
+        setKeyboardVisible(false);
     };
 
     return (
@@ -58,7 +76,7 @@ const ChangePasswordScreen = ({ navigation }: any) => {
                     </Text>
                 </Text>
             </View>
-            <Text style={styles.versionText}>VGM Version 1.0.0</Text>
+            {!isKeyboardVisible && <Text style={styles.versionText}>VGM Version 0.0.1</Text>}
         </LinearGradient>
     );
 };

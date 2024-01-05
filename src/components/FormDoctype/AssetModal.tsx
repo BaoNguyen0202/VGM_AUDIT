@@ -174,7 +174,7 @@ const FormAssetsModal = ({
                             />
                         )}
                         <Card style={{ backgroundColor: 'white', borderRadius: 0, shadowColor: 'white' }}>
-                            <Card.Title title="ASSET!" />
+                            <Card.Title title="Kịch bản tài sản!" />
                             <Card.Content>
                                 <TextInput
                                     style={styles.input}

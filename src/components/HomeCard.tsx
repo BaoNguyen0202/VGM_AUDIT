@@ -113,12 +113,12 @@ const HomeCard = ({ navigation }: any) => {
                 <Text variant="titleLarge">{item.retail_name}</Text>
                 <Text variant="bodyMedium">{item.modified}</Text>
             </Card.Content>
-            <Card.Actions>
+            {/* <Card.Actions>
                 <View style={styles.iconContainer}>
                     <IconButton icon="pen" iconColor="#1abc9c" onPress={() => UpdateScenario(item.name)} />
                     <IconButton icon="delete" iconColor="#1abc9c" onPress={() => handleDeleteScenario(item.name)} />
                 </View>
-            </Card.Actions>
+            </Card.Actions> */}
         </Card>
     );
 

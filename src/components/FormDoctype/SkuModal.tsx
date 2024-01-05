@@ -26,6 +26,7 @@ const FormSkuModal = ({
     product_name,
     nameToModal,
     scenario_code,
+    onSaveImage,
 }: any) => {
     const [productName, setProductName] = useState('');
     const [capturedImageUri, setCapturedImageUri] = useState('');
@@ -69,6 +70,7 @@ const FormSkuModal = ({
                 throw new Error('Error uploading image: Invalid status or undefined file_url');
             }
         } catch (error) {
+            Alert.alert('Upload Failed', 'Upload failed. Please try again.');
             console.error('Error uploading image:', error);
             throw error;
         }
@@ -116,7 +118,20 @@ const FormSkuModal = ({
             setLoading(false);
         }
     };
-
+    const handleSave = async () => {
+        try {
+            setLoading(true);
+            const uploadedImageUri = await uploadImage();
+            console.log(uploadedImageUri);
+            // Truyền uploadedImageUri về màn hình Product
+            onSaveImage(uploadedImageUri);
+        } catch (error) {
+            console.error('Error saving image:', error);
+            Alert.alert('Save Failed', 'Save failed. Please try again.');
+        } finally {
+            setLoading(false);
+        }
+    };
     const handleCheckin = async () => {
         try {
             const granted = await PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.CAMERA);
@@ -197,6 +212,9 @@ const FormSkuModal = ({
                                     disabled={!capturedImageUri || loading}
                                 >
                                     Submit
+                                </Button>
+                                <Button mode="contained" onPress={handleSave}>
+                                    save
                                 </Button>
                             </Card.Actions>
                         </Card>

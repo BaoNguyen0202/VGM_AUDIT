@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, Alert, Platform, Image } from 'react-native';
+import { View, StyleSheet, Alert, Platform, Image, Keyboard, KeyboardEvent } from 'react-native';
 import { TextInput, Button, Text, Provider as PaperProvider } from 'react-native-paper';
 import { ApiConstant, AppConstant, ScreenConstant } from '../../const';
 import axios from 'axios';
@@ -16,6 +16,7 @@ const LoginScreen = ({ navigation }: any) => {
     const [userNameStore, setUserNameStore] = useMMKVString(AppConstant.userNameStore);
     const [passwordStore, setPasswordStore] = useMMKVString(AppConstant.passwordStore);
     const [secureTextEntry, setSecureTextEntry] = useState(true);
+    const [isKeyboardVisible, setKeyboardVisible] = useState(false);
 
     useEffect(() => {
         const checkAutoLogin = async () => {
@@ -30,6 +31,16 @@ const LoginScreen = ({ navigation }: any) => {
 
         checkAutoLogin();
     }, [userNameStore, passwordStore]);
+
+    useEffect(() => {
+        const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', handleKeyboardDidShow);
+        const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', handleKeyboardDidHide);
+
+        return () => {
+            keyboardDidShowListener.remove();
+            keyboardDidHideListener.remove();
+        };
+    }, []);
 
     const handleAutoLogin = async (autoUserName: string, autoPassword: string) => {
         try {
@@ -89,6 +100,14 @@ const LoginScreen = ({ navigation }: any) => {
         }
     };
 
+    const handleKeyboardDidShow = (event: KeyboardEvent) => {
+        setKeyboardVisible(true);
+    };
+
+    const handleKeyboardDidHide = () => {
+        setKeyboardVisible(false);
+    };
+
     return (
         <LinearGradient colors={['#3498db', '#1abc9c']} style={styles.linearGradient}>
             <Image source={ImageAssets.InitLogo} style={styles.logo} />
@@ -117,7 +136,7 @@ const LoginScreen = ({ navigation }: any) => {
                     </Text>
                 </Text>
             </View>
-            <Text style={styles.versionText}>VGM Version 1.0.0</Text>
+            {!isKeyboardVisible && <Text style={styles.versionText}>VGM Version 0.0.1</Text>}
         </LinearGradient>
     );
 };

@@ -6,3 +6,6 @@ export const HOME = 'Home';
 export const EDIT_PROFILE = 'Profile';
 export const PRODUCT = 'Product';
 export const SCENARIO = 'Scenario';
+export const SCENARIOSKU = 'ScenarioSKU';
+export const SCENARIOASSET = 'ScenarioASSET';
+export const SCENARIOPOSM = 'ScenarioPOSM';

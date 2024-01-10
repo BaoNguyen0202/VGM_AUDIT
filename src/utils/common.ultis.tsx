@@ -69,3 +69,14 @@ export const dismissKeyboard = async (func: () => void) => {
         }
     });
 };
+export const renderRandomDocName = (prefix: string) => {
+    let result = '';
+    const characters = 'abcdefghijklmnopqrstuvwxyz';
+    const charactersLength = characters.length;
+    let counter = 0;
+    while (counter < 10) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+        counter += 1;
+    }
+    return `${prefix}-${result}`;
+};

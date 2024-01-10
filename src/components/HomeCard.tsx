@@ -1,16 +1,38 @@
 import React, { useEffect, useState } from 'react';
-import { FlatList, StyleSheet, View, ActivityIndicator, Alert } from 'react-native';
-import { Card, Text, Avatar, Button, IconButton } from 'react-native-paper';
+import { FlatList, StyleSheet, View, ActivityIndicator, Alert, TouchableOpacity } from 'react-native';
+import { Card, Text, Avatar, Button, IconButton, Icon } from 'react-native-paper';
 import axios from 'axios';
 import { ApiConstant, AppConstant, ScreenConstant } from '../const';
 import LinearGradient from 'react-native-linear-gradient';
 import { CommonUtils } from '../utils';
 
 const HomeCard = ({ navigation }: any) => {
-    const LeftContent = (props: any) => <Avatar.Icon {...props} icon="animation-outline" />;
     const [scenarioData, setScenarioData] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [selectedScenario, setSelectedScenario] = useState<string[]>([]);
 
+    const LeftContent = (props: any) => <Avatar.Icon {...props} icon="store-check-outline" />;
+    const rightContent = (scenarioName: string) => (
+        <TouchableOpacity onPress={() => handleReportScenario(scenarioName)}>
+            <View
+                style={[
+                    styles.rightContentContainerGreen,
+                    selectedScenario.includes(scenarioName) && styles.rightContentContainerRed,
+                ]}
+            >
+                <Text style={{ margin: 10, fontWeight: 'bold', color: 'green' }}> Checking</Text>
+            </View>
+        </TouchableOpacity>
+    );
+    const handleReportScenario = async (scenarioName: any) => {
+        console.log('Clicked on scenario:', scenarioName);
+        const isSelected = selectedScenario.includes(scenarioName);
+
+        // Nếu chưa chọn thì thêm vào danh sách
+        if (!isSelected) {
+            setSelectedScenario((prevSelected) => [...prevSelected, scenarioName]);
+        }
+    };
     const fetchData = async () => {
         try {
             const apiKey = CommonUtils.storage.getString(AppConstant.Api_key);
@@ -39,6 +61,7 @@ const HomeCard = ({ navigation }: any) => {
                     retail_name: value[1],
                     modified: value[2],
                 }));
+                console.log(formattedData);
 
                 setScenarioData(formattedData);
             } else {
@@ -60,70 +83,47 @@ const HomeCard = ({ navigation }: any) => {
         navigation.navigate(ScreenConstant.SCENARIO, { scenarioName });
     };
 
-    const handleDeleteScenario = (nameId: string) => {
-        console.log(nameId);
-        Alert.alert('Currently developing, please return later!');
-        // Alert.alert(
-        //     'Confirm Delete',
-        //     'Are you sure you want to delete this scenario?',
-        //     [
-        //         {
-        //             text: 'No',
-        //             style: 'cancel',
-        //         },
-        //         {
-        //             text: 'Yes',
-        //             onPress: () => performDeleteScenario(nameId),
-        //         },
-        //     ],
-        //     { cancelable: false },
-        // );
-    };
-
-    const performDeleteScenario = async (nameId: string) => {
-        try {
-            const formData = new FormData();
-            formData.append('doctype', 'Scenario');
-            formData.append('name', nameId);
-            await axios.delete(ApiConstant.DELETE_SCENARIO, {
-                data: formData,
-                headers: { 'Content-Type': 'multipart/form-data' },
-            });
-
-            console.log('Deleting scenario:', nameId);
-            fetchData();
-        } catch (error) {
-            console.error('Error deleting scenario:', error);
-        }
-    };
-
     useEffect(() => {
         fetchData();
     }, []);
+    const _renderHeader = () => {
+        return (
+            <View style={styles.headerContainer}>
+                <Text style={styles.headerLabel}>Điểm bán</Text>
 
-    const UpdateScenario = (nameId: string) => {
-        console.log(nameId);
-        Alert.alert('Currently developing, please return later!');
+                <IconButton
+                    icon="magnify"
+                    iconColor="#000"
+                    size={24}
+                    onPress={() => {
+                        // Xử lý sự kiện khi nhấn vào icon search
+                    }}
+                />
+            </View>
+        );
     };
 
     const renderItem = ({ item }: any) => (
         <Card style={styles.card} onPress={() => goToProductScreen(item.name)}>
-            <Card.Title title="Điểm bán" left={LeftContent} />
+            <Card.Title
+                titleStyle={{ fontSize: 18, fontWeight: 'bold' }}
+                title={item.retail_name}
+                left={LeftContent}
+                right={() => rightContent(item.name)}
+            />
+            <View style={styles.line} />
             <Card.Content>
-                <Text variant="titleLarge">{item.retail_name}</Text>
-                <Text variant="bodyMedium">{item.modified}</Text>
-            </Card.Content>
-            {/* <Card.Actions>
-                <View style={styles.iconContainer}>
-                    <IconButton icon="pen" iconColor="#1abc9c" onPress={() => UpdateScenario(item.name)} />
-                    <IconButton icon="delete" iconColor="#1abc9c" onPress={() => handleDeleteScenario(item.name)} />
+                <View style={styles.iconTextContainer}>
+                    <IconButton icon="clock-time-four-outline" iconColor="#000" size={20} />
+                    <Text variant="bodyMedium">{item.modified}</Text>
                 </View>
-            </Card.Actions> */}
+            </Card.Content>
         </Card>
     );
 
     return (
-        <LinearGradient colors={['#3498db', '#1abc9c']} style={styles.linearGradient}>
+        <View style={styles.container}>
+            <View>{_renderHeader()}</View>
             <View style={styles.container}>
                 {loading ? (
                     <ActivityIndicator style={styles.loader} animating={true} color={'#000'} size="large" />
@@ -145,7 +145,7 @@ const HomeCard = ({ navigation }: any) => {
                     </View>
                 )}
             </View>
-        </LinearGradient>
+        </View>
     );
 };
 
@@ -156,6 +156,13 @@ const styles = StyleSheet.create({
     card: {
         marginTop: 8,
         marginBottom: 5,
+        backgroundColor: '#FFF',
+    },
+    line: {
+        height: 0.7,
+        backgroundColor: 'gray',
+        marginVertical: 4,
+        marginHorizontal: 20,
     },
     loader: {
         flex: 1,
@@ -184,6 +191,34 @@ const styles = StyleSheet.create({
     },
     linearGradient: {
         flex: 1,
+    },
+    headerContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+    },
+    headerLabel: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: 'gray',
+        marginLeft: 8,
+        alignSelf: 'center',
+    },
+    rightContentContainerGreen: {
+        backgroundColor: '#a2ded0',
+        borderRadius: 8,
+        margin: 8,
+    },
+    rightContentContainerRed: {
+        backgroundColor: 'rgba(255, 0, 0, 0.5)',
+        borderRadius: 8,
+        margin: 8,
+    },
+    iconTextContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
     },
 });
 

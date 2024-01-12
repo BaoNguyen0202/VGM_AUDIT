@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Provider as PaperProvider } from 'react-native-paper';
+import { DefaultTheme, Provider as PaperProvider } from 'react-native-paper';
 import { NavigationContainer } from '@react-navigation/native';
 import RootNavigator from './src/navigation/RootNavigator';
 import MapLibreGL from '@maplibre/maplibre-react-native';
@@ -16,13 +16,20 @@ import ScenarioScreen from './src/screens/ScenatioScreen';
 import ScenarioSKU from './src/components/ScenarioType/ScenarioSKU';
 import ScenarioASSET from './src/components/ScenarioType/ScenarioASSET';
 import ScenarioPOSM from './src/components/ScenarioType/ScenarioPOSM';
+import DetailScreen from './src/screens/DetailScreen';
 
 MapLibreGL.setAccessToken(null);
 const Stack = createStackNavigator();
-
+const newTheme = {
+    ...DefaultTheme,
+    colors: {
+        ...DefaultTheme.colors,
+        background: '#000',
+    },
+};
 const App = () => {
     return (
-        <PaperProvider>
+        <PaperProvider theme={newTheme}>
             <NavigationContainer>
                 <Stack.Navigator>
                     <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />

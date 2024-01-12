@@ -33,7 +33,7 @@ const ForgotPasswordScreen = ({ navigation }: any) => {
     };
 
     return (
-        <LinearGradient colors={['#3498db', '#1abc9c']} style={styles.linearGradient}>
+        <View style={styles.headerContainer}>
             <Image source={ImageAssets.InitLogo} style={styles.logo} />
 
             <View style={styles.container}>
@@ -49,7 +49,7 @@ const ForgotPasswordScreen = ({ navigation }: any) => {
                 </Text>
             </View>
             {!isKeyboardVisible && <Text style={styles.versionText}>VGM Version 0.0.1</Text>}
-        </LinearGradient>
+        </View>
     );
 };
 
@@ -59,9 +59,12 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         padding: 16,
     },
+    headerContainer: {
+        flex: 1,
+    },
     input: {
         marginBottom: 16,
-        backgroundColor: '#34cadb',
+        backgroundColor: '#FFF',
     },
     button: {
         marginTop: 8,
@@ -70,7 +73,7 @@ const styles = StyleSheet.create({
     text: {
         marginTop: 16,
         textAlign: 'center',
-        color: 'white',
+        color: '#000',
     },
     link: {
         color: 'blue',
@@ -81,11 +84,11 @@ const styles = StyleSheet.create({
     logo: {
         resizeMode: 'contain',
         alignSelf: 'center',
-        width: '70%',
+        width: '60%',
         top: '10%',
     },
     versionText: {
-        color: 'white',
+        color: '#000',
         fontSize: 16,
         textAlign: 'center',
         marginBottom: 16,

@@ -41,7 +41,7 @@ const ChangePasswordScreen = ({ navigation }: any) => {
     };
 
     return (
-        <LinearGradient colors={['#3498db', '#1abc9c']} style={styles.linearGradient}>
+        <View style={styles.headerContainer}>
             <Image source={ImageAssets.InitLogo} style={styles.logo} />
 
             <View style={styles.container}>
@@ -77,7 +77,7 @@ const ChangePasswordScreen = ({ navigation }: any) => {
                 </Text>
             </View>
             {!isKeyboardVisible && <Text style={styles.versionText}>VGM Version 0.0.1</Text>}
-        </LinearGradient>
+        </View>
     );
 };
 
@@ -86,6 +86,9 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         padding: 16,
+    },
+    headerContainer: {
+        flex: 1,
     },
     input: {
         marginBottom: 16,
@@ -113,7 +116,7 @@ const styles = StyleSheet.create({
         top: '10%',
     },
     versionText: {
-        color: 'white',
+        color: '#000',
         fontSize: 16,
         textAlign: 'center',
         marginBottom: 16,

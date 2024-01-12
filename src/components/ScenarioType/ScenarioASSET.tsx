@@ -42,7 +42,7 @@ const ScenarioASSET = ({ route, navigation }: any) => {
     const [userNameStore] = useMMKVString(AppConstant.userNameStore);
     const [submitSuccess, setSubmitSuccess] = useState<boolean>(false);
 
-    const LeftContent = (props: any) => <Avatar.Icon {...props} icon="briefcase" />;
+    const LeftContent = () => <Icon source={'note-check-outline'} size={24} color="#22c55e" />;
 
     const fetchData = async () => {
         try {
@@ -148,7 +148,7 @@ const ScenarioASSET = ({ route, navigation }: any) => {
 
                     if (response.status === 200) {
                         console.log('Upload successful');
-                        uploadedImageUrls.push(capturedImageUri);
+                        uploadedImageUrls.push(response.data.message.file_url);
                         imageArray.splice(0, 1);
                     } else {
                         console.error('Error uploading image: Invalid status or undefined file_url');
@@ -228,10 +228,7 @@ const ScenarioASSET = ({ route, navigation }: any) => {
         }
 
         console.log(formsData);
-        await AsyncStorage.setItem('savedFormASSET', JSON.stringify(formsData));
-        const a = await AsyncStorage.getItem('savedFormASSET');
-        console.log('zzz', a);
-        await AsyncStorage.removeItem('savedFormASSET');
+        await AsyncStorage.setItem('savedFormASSET' + route.params.scenarioName, JSON.stringify(formsData));
         await navigation.goBack();
     };
     useEffect(() => {
@@ -276,8 +273,12 @@ const ScenarioASSET = ({ route, navigation }: any) => {
         const showDeleteButton = !!capturedImageUri;
 
         return (
-            <Card style={styles.card}>
-                <Card.Title title={dataValues?.scenario_name} left={LeftContent} />
+            <Card mode="contained" style={styles.card}>
+                <Card.Title
+                    titleStyle={{ marginLeft: -20, fontSize: 18, fontWeight: 'bold' }}
+                    title={dataValues?.scenario_name}
+                    left={LeftContent}
+                />
                 <View style={styles.line} />
 
                 <Card.Content>
@@ -314,7 +315,8 @@ const ScenarioASSET = ({ route, navigation }: any) => {
                             <Button
                                 style={styles.takeButton}
                                 icon={'camera'}
-                                mode="contained-tonal"
+                                mode="outlined"
+                                textColor="#4697e8"
                                 onPress={() => handleCheckin(item.key)}
                             >
                                 Take
@@ -322,7 +324,7 @@ const ScenarioASSET = ({ route, navigation }: any) => {
                         </View>
                         {showDeleteButton && (
                             <TouchableRipple style={styles.takeButton} onPress={() => handleDeleteImage(item.key)}>
-                                <Button style={styles.takeButton} mode="contained-tonal" icon={'close'}>
+                                <Button style={styles.takeButton} mode="outlined" icon={'close'}>
                                     close
                                 </Button>
                             </TouchableRipple>
@@ -366,7 +368,13 @@ const ScenarioASSET = ({ route, navigation }: any) => {
                 )}
             </View>
             <View style={styles.saveButtonContainer}>
-                <Button style={styles.saveButton} icon={'content-save'} mode="contained-tonal" onPress={handleSave}>
+                <Button
+                    style={styles.saveButton}
+                    textColor="#4697e8"
+                    icon={'content-save'}
+                    mode="elevated"
+                    onPress={handleSave}
+                >
                     Save
                 </Button>
             </View>
@@ -377,10 +385,12 @@ const ScenarioASSET = ({ route, navigation }: any) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        backgroundColor: '#f4f6f8',
     },
     card: {
         marginTop: 8,
         marginBottom: 5,
+        backgroundColor: '#FFF',
     },
     flatListContainer: {
         paddingHorizontal: 16,
@@ -442,11 +452,13 @@ const styles = StyleSheet.create({
         width: '100%',
         height: 50,
         marginVertical: 3,
+        backgroundColor: '#FFF',
     },
     takeButton: {
         width: '100%',
         height: 40,
         marginBottom: 8,
+        borderColor: '#4697e8',
     },
     headerContainer: {
         flexDirection: 'row',
@@ -456,8 +468,7 @@ const styles = StyleSheet.create({
     },
     headerLabel: {
         fontSize: 24,
-        fontWeight: 'bold',
-        color: 'gray',
+        color: '#000',
         textAlign: 'center',
         flex: 1,
         marginLeft: -24,

@@ -1,36 +1,38 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 import { Icon } from 'react-native-paper';
 import Home from '../screens/HomeScreen';
 import Sync from '../screens/Sync';
-import MapLibre from '../components/MapLibre';
-import ProfileScreen from '../screens/ProfileScreen';
-import Product from '../screens/Product';
-import { ScreenConstant } from '../const';
-import HomeCard from '../components/HomeCard';
 
-const Tab = createBottomTabNavigator(); // hoặc createMaterialBottomTabNavigator
+import HomeCard from '../components/HomeCard';
+import DetailScreen from '../screens/DetailScreen';
+import MoreScreen from '../screens/MoreScreen';
+
+const Tab = createBottomTabNavigator();
 
 const RootNavigator = () => {
     return (
-        <Tab.Navigator initialRouteName="Home">
+        <Tab.Navigator initialRouteName="Home" sceneContainerStyle={{ backgroundColor: '#f4f6f8' }}>
             <Tab.Screen
                 name="Home"
                 component={Home}
                 options={{
-                    tabBarLabel: 'Home',
-                    tabBarIcon: ({ color, size }) => <Icon source="home" color={color} size={size} />,
+                    tabBarLabel: 'Trang chủ',
+                    tabBarIcon: ({ color, size }) => <Icon source="home-outline" color={color} size={size} />,
                     headerShown: false,
+                    tabBarStyle: { height: 60 },
+                    tabBarLabelStyle: { paddingBottom: 8 },
                 }}
             />
             <Tab.Screen
                 name="Sale"
                 component={HomeCard}
                 options={{
-                    tabBarLabel: 'Sale',
+                    tabBarLabel: 'Điểm bán',
                     tabBarIcon: ({ color, size }) => <Icon source="map" color={color} size={size} />,
                     headerShown: false,
+                    tabBarStyle: { height: 60 },
+                    tabBarLabelStyle: { paddingBottom: 8 },
                 }}
             />
             <Tab.Screen
@@ -40,15 +42,19 @@ const RootNavigator = () => {
                     tabBarLabel: 'Sync',
                     tabBarIcon: ({ color, size }) => <Icon source="sync" color={color} size={size} />,
                     headerShown: false,
+                    tabBarStyle: { height: 60 },
+                    tabBarLabelStyle: { paddingBottom: 8 },
                 }}
             />
             <Tab.Screen
-                name="Profile"
-                component={ProfileScreen}
+                name="Detail"
+                component={MoreScreen}
                 options={{
-                    tabBarLabel: 'Profile',
-                    tabBarIcon: ({ color, size }) => <Icon source="account" color={color} size={size} />,
+                    tabBarLabel: 'Xem thêm',
+                    tabBarIcon: ({ color, size }) => <Icon source="dots-horizontal" color={color} size={size} />,
                     headerShown: false,
+                    tabBarStyle: { height: 60 },
+                    tabBarLabelStyle: { paddingBottom: 8 },
                 }}
             />
         </Tab.Navigator>

@@ -1,38 +1,94 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { FlatList, StyleSheet, View, ActivityIndicator, Alert, TouchableOpacity } from 'react-native';
 import { Card, Text, Avatar, Button, IconButton, Icon } from 'react-native-paper';
 import axios from 'axios';
 import { ApiConstant, AppConstant, ScreenConstant } from '../const';
 import LinearGradient from 'react-native-linear-gradient';
 import { CommonUtils } from '../utils';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import FilterView from './CustomSheet/FilterView';
+import BottomSheet from '@gorhom/bottom-sheet';
 
 const HomeCard = ({ navigation }: any) => {
     const [scenarioData, setScenarioData] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedScenario, setSelectedScenario] = useState<string[]>([]);
+    const apiKey = CommonUtils.storage.getString(AppConstant.Api_key);
+    const apiSecret = CommonUtils.storage.getString(AppConstant.Api_secret);
+    const bottomSheetRef = useRef<BottomSheet>(null);
 
-    const LeftContent = (props: any) => <Avatar.Icon {...props} icon="store-check-outline" />;
+    const LeftContent = () => <Icon source={'store-check-outline'} size={24} color="#22c55e" />;
     const rightContent = (scenarioName: string) => (
-        <TouchableOpacity onPress={() => handleReportScenario(scenarioName)}>
+        <TouchableOpacity>
             <View
                 style={[
                     styles.rightContentContainerGreen,
                     selectedScenario.includes(scenarioName) && styles.rightContentContainerRed,
                 ]}
             >
-                <Text style={{ margin: 10, fontWeight: 'bold', color: 'green' }}> Checking</Text>
+                <Text style={{ margin: 10, fontWeight: 'bold', color: '#22c55e' }}> Checking</Text>
+                {/* #ffab00 */}
             </View>
         </TouchableOpacity>
     );
-    const handleReportScenario = async (scenarioName: any) => {
-        console.log('Clicked on scenario:', scenarioName);
-        const isSelected = selectedScenario.includes(scenarioName);
 
-        // Nếu chưa chọn thì thêm vào danh sách
-        if (!isSelected) {
-            setSelectedScenario((prevSelected) => [...prevSelected, scenarioName]);
+    const handleReportScenario = async (scenarioName: string) => {
+        const formSKUString = await AsyncStorage.getItem('savedFormSKU' + scenarioName);
+        const formPOSSString = await AsyncStorage.getItem('savedFormPOSM' + scenarioName);
+        const formASSETString = await AsyncStorage.getItem('savedFormASSET' + scenarioName);
+
+        const formSKU = formSKUString ? JSON.parse(formSKUString) : null;
+        const formPOSS = formPOSSString ? JSON.parse(formPOSSString) : null;
+        const formASSET = formASSETString ? JSON.parse(formASSETString) : null;
+
+        if (!formSKU || !formPOSS || !formASSET) {
+            Alert.alert('Vui lòng chọn báo cáo và nhập đủ thông tin trước khi gửi báo cáo.');
+            return;
+        }
+
+        try {
+            console.log('Clicked on scenario:', scenarioName);
+            const data = {
+                docstatus: 0,
+                doctype: 'DashboardRetail',
+                retail: scenarioName,
+                check_longitude: '105.77351976716446',
+                check_latitude: '21.037335873828784',
+                report_product: formSKU,
+                report_posm: formPOSS,
+                report_asset: formASSET,
+            };
+            const dataPost = {
+                doc: JSON.stringify(data),
+                action: 'Save',
+            };
+
+            if (!apiKey || !apiSecret) {
+                throw new Error('API key or secret not available');
+            }
+
+            const response = await axios.post(ApiConstant.POST_SAVE_DOCS, dataPost, {
+                headers: CommonUtils.Auth_header(apiKey, apiSecret),
+            });
+
+            if (response.status === 200) {
+                console.log('Submit successful.');
+                const isSelected = selectedScenario.includes(scenarioName);
+                await AsyncStorage.removeItem('savedFormSKU' + scenarioName);
+                await AsyncStorage.removeItem('savedFormPOSM' + scenarioName);
+                await AsyncStorage.removeItem('savedFormASSET' + scenarioName);
+                if (!isSelected) {
+                    setSelectedScenario((prevSelected) => [...prevSelected, scenarioName]);
+                }
+                Alert.alert('gửi báo cáo thành công');
+            } else {
+                console.error('Unexpected response status:', response.status);
+            }
+        } catch (error) {
+            console.error('An error occurred:', error);
         }
     };
+
     const fetchData = async () => {
         try {
             const apiKey = CommonUtils.storage.getString(AppConstant.Api_key);
@@ -102,11 +158,45 @@ const HomeCard = ({ navigation }: any) => {
             </View>
         );
     };
-
+    const renderFillter = () => {
+        return (
+            <View
+                style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'flex-start',
+                    marginVertical: 16,
+                    marginLeft: 16,
+                }}
+            >
+                <View
+                    style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'flex-start',
+                        padding: 8,
+                        borderRadius: 16,
+                        borderWidth: 1,
+                        borderColor: 'gray',
+                        maxWidth: 180,
+                    }}
+                >
+                    <Text style={{ color: 'gray' }}>Khoảng cách:</Text>
+                    <Text style={{ color: '#000', marginLeft: 8 }}>Gần nhất</Text>
+                </View>
+                <FilterView
+                    style={{ marginLeft: 12 }}
+                    onPress={() => {
+                        bottomSheetRef.current && bottomSheetRef.current.snapToIndex(0);
+                    }}
+                />
+            </View>
+        );
+    };
     const renderItem = ({ item }: any) => (
-        <Card style={styles.card} onPress={() => goToProductScreen(item.name)}>
+        <Card style={styles.card} mode="contained" onPress={() => goToProductScreen(item.name)}>
             <Card.Title
-                titleStyle={{ fontSize: 18, fontWeight: 'bold' }}
+                titleStyle={{ marginLeft: -20, fontSize: 18, fontWeight: 'bold' }}
                 title={item.retail_name}
                 left={LeftContent}
                 right={() => rightContent(item.name)}
@@ -114,16 +204,41 @@ const HomeCard = ({ navigation }: any) => {
             <View style={styles.line} />
             <Card.Content>
                 <View style={styles.iconTextContainer}>
-                    <IconButton icon="clock-time-four-outline" iconColor="#000" size={20} />
+                    <IconButton style={styles.iconButton} icon="clock-time-four-outline" iconColor="#000" size={20} />
                     <Text variant="bodyMedium">{item.modified}</Text>
                 </View>
             </Card.Content>
+            <Card.Content>
+                <View style={styles.iconTextContainer}>
+                    <IconButton style={styles.iconButton} icon="map-marker-outline" iconColor="#000" size={20} />
+                    <Text variant="bodyMedium">4X, Đ. Lê Đức Thọ, Mỹ Đình, Từ Liêm, Hà Nội, Việt Nam</Text>
+                </View>
+            </Card.Content>
+            <Card.Content>
+                <View style={styles.iconTextContainer}>
+                    <IconButton style={styles.iconButton} icon="phone-outline" iconColor="#000" size={20} />
+                    <Text variant="bodyMedium">+84 1234 333 093</Text>
+                </View>
+            </Card.Content>
+            <Card.Actions>
+                <Button
+                    onPress={() => {
+                        handleReportScenario(item.name);
+                    }}
+                    mode="outlined"
+                    textColor="#4697e8"
+                    style={{ borderColor: '#4697e8' }}
+                >
+                    Send report
+                </Button>
+            </Card.Actions>
         </Card>
     );
 
     return (
         <View style={styles.container}>
             <View>{_renderHeader()}</View>
+            <>{renderFillter()}</>
             <View style={styles.container}>
                 {loading ? (
                     <ActivityIndicator style={styles.loader} animating={true} color={'#000'} size="large" />
@@ -201,24 +316,27 @@ const styles = StyleSheet.create({
     },
     headerLabel: {
         fontSize: 24,
-        fontWeight: 'bold',
-        color: 'gray',
+        color: '#000',
         marginLeft: 8,
         alignSelf: 'center',
     },
     rightContentContainerGreen: {
-        backgroundColor: '#a2ded0',
-        borderRadius: 8,
+        backgroundColor: 'rgba(34, 197, 94, 0.08)',
+        borderRadius: 10,
         margin: 8,
     },
     rightContentContainerRed: {
-        backgroundColor: 'rgba(255, 0, 0, 0.5)',
-        borderRadius: 8,
+        backgroundColor: 'rgba(255, 171, 0, 0.08)',
+        borderRadius: 10,
         margin: 8,
     },
     iconTextContainer: {
         flexDirection: 'row',
         alignItems: 'center',
+        marginRight: '10%',
+    },
+    iconButton: {
+        marginLeft: -5,
     },
 });
 

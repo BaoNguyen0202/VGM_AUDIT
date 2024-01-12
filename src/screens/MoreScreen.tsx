@@ -5,10 +5,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import AppContainer from '../components/AppContainer';
 import { ScreenConstant } from '../const';
 
-const Home = ({ navigation }: any) => {
+const MoreScreen = ({ navigation }: any) => {
     const renderUiWidget = () => {
         const renderIconWithText = (iconSource: string, text: string, color: string) => (
-            <TouchableNativeFeedback onPress={() => {}}>
+            <TouchableNativeFeedback onPress={() => navigation.navigate(ScreenConstant.LOG_IN)}>
                 <View style={styles.otherIconsContainer}>
                     <Icon source={iconSource} size={28} color={color} />
                     <Text style={styles.iconText}>{text}</Text>
@@ -24,29 +24,25 @@ const Home = ({ navigation }: any) => {
             </View>
         );
     };
+    const _renderHeader = () => {
+        return (
+            <View style={styles.headerContainer}>
+                <Text style={styles.headerLabel}>Tiện ích</Text>
 
+                {/* <IconButton
+                    icon="magnify"
+                    iconColor="#000"
+                    size={24}
+                    onPress={() => {
+                        // Xử lý sự kiện khi nhấn vào icon search
+                    }}
+                /> */}
+            </View>
+        );
+    };
     return (
         <SafeAreaView style={styles.safeArea} edges={['top']}>
-            <View style={styles.header}>
-                <View style={styles.userInfoContainer}>
-                    <Avatar.Image size={48} source={{ uri: 'https://example.com/avatar.jpg' }} />
-                    <View style={styles.containerIfU}>
-                        <Text style={styles.greetingText}>Xin chào,</Text>
-                        <Text style={styles.userName}>Nguyễn Bảo</Text>
-                    </View>
-                </View>
-                <View>
-                    <IconButton
-                        icon="bell-outline"
-                        iconColor={'#000'} // Thay đổi màu sắc theo ý muốn
-                        size={20}
-                        onPress={() => {
-                            // Xử lý sự kiện khi nhấn vào biểu tượng thông báo
-                        }}
-                    />
-                </View>
-            </View>
-            {/* Thêm phần nội dung chính của màn hình Home ở đây */}
+            <View>{_renderHeader()}</View>
             <AppContainer>
                 <View style={styles.mainLayout}>
                     <Text style={{ marginVertical: 8, color: 'gray' }}>Tiện ích</Text>
@@ -108,6 +104,19 @@ const styles = StyleSheet.create({
         color: '#000',
         marginTop: 8,
     },
+    headerContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+    },
+    headerLabel: {
+        fontSize: 24,
+        color: '#000',
+        marginLeft: 8,
+        alignSelf: 'center',
+    },
 });
 
-export default Home;
+export default MoreScreen;

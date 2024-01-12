@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 import axios from 'axios';
-import { ActivityIndicator, Avatar, Button, Card, IconButton, Modal, Portal, Text } from 'react-native-paper';
+import { ActivityIndicator, Avatar, Button, Card, Icon, IconButton, Modal, Portal, Text } from 'react-native-paper';
 import { ApiConstant, ScreenConstant } from '../const';
 import LinearGradient from 'react-native-linear-gradient';
 
@@ -10,7 +10,7 @@ const ScenarioScreen = ({ route, navigation }: any) => {
     const [scenarios, setScenarios] = useState<any[]>([]);
     const [responseData, setResponseData] = useState<any>(null);
 
-    const LeftContent = (props: any) => <Avatar.Icon {...props} icon="book-multiple-outline" />;
+    const LeftContent = () => <Icon source={'book-multiple-outline'} size={24} color="#22c55e" />;
     const rightContent = () => (
         <View style={styles.rightContentContainer}>
             <Text style={{ margin: 10, fontWeight: 'bold', color: 'green' }}> Checking</Text>
@@ -90,21 +90,35 @@ const ScenarioScreen = ({ route, navigation }: any) => {
             responseData && responseData.docs && responseData.docs.length > 0 ? responseData.docs[0] : null;
 
         return (
-            <Card style={styles.card} onPress={() => productWithDoctype(item.key)}>
-                <Card.Title title={`Tại ` + dataValues.retail_name} left={LeftContent} />
+            <Card style={styles.card} mode="contained" onPress={() => productWithDoctype(item.key)}>
+                <Card.Title
+                    titleStyle={{ marginLeft: -20, fontSize: 18, fontWeight: 'bold' }}
+                    title={`Tại ` + dataValues.retail_name}
+                    left={LeftContent}
+                />
                 <View style={styles.line} />
 
                 <Card.Content>
                     <View style={styles.iconTextContainer}>
-                        <IconButton icon="account-arrow-right-outline" iconColor="#000" size={20} />
+                        <IconButton
+                            style={styles.iconButton}
+                            icon="account-arrow-right-outline"
+                            iconColor="#000"
+                            size={20}
+                        />
                         <Text variant="bodyMedium">{dataValues.user_supervisor}</Text>
                     </View>
                     <View style={styles.iconTextContainer}>
-                        <IconButton icon="book-open-outline" iconColor="#000" size={20} />
+                        <IconButton style={styles.iconButton} icon="book-open-outline" iconColor="#000" size={20} />
                         <Text variant="titleMedium">{item.value}</Text>
                     </View>
                     <View style={styles.iconTextContainer}>
-                        <IconButton icon="map-marker-radius-outline" iconColor="#000" size={20} />
+                        <IconButton
+                            style={styles.iconButton}
+                            icon="map-marker-radius-outline"
+                            iconColor="#000"
+                            size={20}
+                        />
                         <Text variant="bodyMedium">{dataValues.retail_address}</Text>
                     </View>
                 </Card.Content>
@@ -143,6 +157,7 @@ const ScenarioScreen = ({ route, navigation }: any) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        backgroundColor: '#f4f6f8',
     },
     loader: {
         flex: 1,
@@ -180,8 +195,7 @@ const styles = StyleSheet.create({
     },
     headerLabel: {
         fontSize: 24,
-        fontWeight: 'bold',
-        color: 'gray',
+        color: '#000',
         textAlign: 'center',
         flex: 1,
         marginLeft: -24,
@@ -200,7 +214,10 @@ const styles = StyleSheet.create({
     iconTextContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginRight: '20%',
+        marginRight: '10%',
+    },
+    iconButton: {
+        marginLeft: -5,
     },
 });
 

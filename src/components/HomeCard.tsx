@@ -47,7 +47,6 @@ const HomeCard = ({ navigation }: any) => {
         }
 
         try {
-            console.log('Clicked on scenario:', scenarioName);
             const data = {
                 docstatus: 0,
                 doctype: 'DashboardRetail',
@@ -58,6 +57,7 @@ const HomeCard = ({ navigation }: any) => {
                 report_posm: formPOSS,
                 report_asset: formASSET,
             };
+
             const dataPost = {
                 doc: JSON.stringify(data),
                 action: 'Save',
@@ -117,7 +117,6 @@ const HomeCard = ({ navigation }: any) => {
                     retail_name: value[1],
                     modified: value[2],
                 }));
-                console.log(formattedData);
 
                 setScenarioData(formattedData);
             } else {
@@ -145,7 +144,7 @@ const HomeCard = ({ navigation }: any) => {
     const _renderHeader = () => {
         return (
             <View style={styles.headerContainer}>
-                <Text style={styles.headerLabel}>Điểm bán</Text>
+                <Text style={styles.headerLabel}>Viếng thăm</Text>
 
                 <IconButton
                     icon="magnify"
@@ -194,7 +193,7 @@ const HomeCard = ({ navigation }: any) => {
         );
     };
     const renderItem = ({ item }: any) => (
-        <Card style={styles.card} mode="contained" onPress={() => goToProductScreen(item.name)}>
+        <Card style={styles.card} mode="contained">
             <Card.Title
                 titleStyle={{ marginLeft: -20, fontSize: 18, fontWeight: 'bold' }}
                 title={item.retail_name}
@@ -221,7 +220,7 @@ const HomeCard = ({ navigation }: any) => {
                 </View>
             </Card.Content>
             <Card.Actions>
-                <Button
+                {/* <Button
                     onPress={() => {
                         handleReportScenario(item.name);
                     }}
@@ -230,6 +229,14 @@ const HomeCard = ({ navigation }: any) => {
                     style={{ borderColor: '#4697e8' }}
                 >
                     Send report
+                </Button> */}
+                <Button
+                    onPress={() => goToProductScreen(item.name)}
+                    mode="outlined"
+                    textColor="#4697e8"
+                    style={{ borderColor: '#4697e8' }}
+                >
+                    Checkin
                 </Button>
             </Card.Actions>
         </Card>

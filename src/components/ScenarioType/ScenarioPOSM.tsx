@@ -1,24 +1,8 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import { Alert, FlatList, Keyboard, PermissionsAndroid, StyleSheet, View } from 'react-native';
-import {
-    ActivityIndicator,
-    Avatar,
-    Button,
-    Card,
-    Icon,
-    IconButton,
-    Modal,
-    Portal,
-    Text,
-    TextInput,
-    TouchableRipple,
-} from 'react-native-paper';
-import { ApiConstant, AppConstant } from '../../const';
-import LinearGradient from 'react-native-linear-gradient';
-import { openImagePickerCamera } from '../../utils/camera.utils';
-import { CommonUtils } from '../../utils';
-import { useMMKVString } from 'react-native-mmkv';
+import { Alert, FlatList, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Button, Card, Icon, IconButton, Text, TextInput } from 'react-native-paper';
+import { ApiConstant } from '../../const';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ScenarioPOSM = ({ route, navigation }: any) => {
@@ -26,17 +10,10 @@ const ScenarioPOSM = ({ route, navigation }: any) => {
     const [productData, setProductData] = useState<any[]>([]);
     const [responseData, setResponseData] = useState<any>(null);
     const [loading, setLoading] = useState(true);
-    const [nameProduct, setNameProduct] = useState<string | null>(null);
-    const [capturedImageUriMap, setCapturedImageUriMap] = useState<Record<string, string>>({}); // Thêm state mới để theo dõi ảnh cho từng card
-    const [capturedImageUri, setCapturedImageUri] = useState('');
-    const [deleteButtonVisible, setDeleteButtonVisible] = useState<boolean>(false);
-    const [userInput, setUserInput] = useState<Record<string, { name: string; count: string; image: string }>>({});
     const [currentName, setCurrentName] = useState<Record<string, string>>({});
     const [countInputMap, setCountInputMap] = useState<Record<string, string>>({});
-    const apiKey = CommonUtils.storage.getString(AppConstant.Api_key);
-    const apiSecret = CommonUtils.storage.getString(AppConstant.Api_secret);
-    const [userNameStore] = useMMKVString(AppConstant.userNameStore);
-    const [submitSuccess, setSubmitSuccess] = useState<boolean>(false);
+    const [allProducts, setAllProducts] = useState<any[]>([]);
+    const [hasCapturedImage, setHasCapturedImage] = useState(false);
 
     const LeftContent = () => <Icon source={'note-check-outline'} size={24} color="#22c55e" />;
 
@@ -69,165 +46,60 @@ const ScenarioPOSM = ({ route, navigation }: any) => {
         fetchData();
     };
     const handleCheckin = async (key: string) => {
-        try {
-            const granted = await PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.CAMERA);
-            granted ? openCamera(key) : requestCameraPermission();
-        } catch (error) {
-            console.error('Error checking or requesting camera permission:', error);
+        const selectedProduct = productData.find((product) => product.key === key);
+        const { scenarioName } = route.params;
+
+        if (selectedProduct) {
+            navigation.navigate('PickturePosm', { selectedProduct, scenarioName });
         }
     };
-    const openCamera = (key: string) => {
-        openImagePickerCamera((uri: any) => {
-            setNameProduct(key);
-            setCapturedImageUriMap((prev) => ({ ...prev, [key]: uri }));
-            setCapturedImageUri(uri);
 
-            setDeleteButtonVisible(true);
-            Keyboard.dismiss();
-            setUserInput((prev) => ({
-                ...prev,
-                [key]: {
-                    name: currentName[key] || '',
-                    count: countInputMap[key] || '',
-                    image: uri,
-                },
-            }));
-        });
-    };
-    const handleDeleteImage = (key: string) => {
-        setCapturedImageUriMap((prev) => ({ ...prev, [nameProduct || '']: '' }));
-        setDeleteButtonVisible(false);
-    };
-    const requestCameraPermission = async () => {
-        try {
-            const requestResult = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.CAMERA);
-
-            if (requestResult === PermissionsAndroid.RESULTS.GRANTED) openCamera;
-            else console.log('Camera permission denied');
-        } catch (error) {
-            console.error('Error checking or requesting camera permission:', error);
-        }
-    };
-    const uploadImages = async (imageArray: any) => {
-        try {
-            const uploadedImageUrls = [];
-
-            while (imageArray.length > 0) {
-                setLoading(true);
-
-                const capturedImageUri = imageArray[0];
-                const fileExtension = capturedImageUri.split('.').pop();
-                const fileName = `my_profile_${Date.now()}.${fileExtension}`;
-                const formData = new FormData();
-                formData.append('file', {
-                    uri: capturedImageUri,
-                    type: `image/${fileExtension}`,
-                    name: fileName,
-                });
-                formData.append('is_private', 0);
-                formData.append('folder', 'Home');
-                formData.append('doctype', 'ReportScenario_SKU');
-                formData.append('fieldname', 'photos_display');
-                formData.append('docname', CommonUtils.renderRandomDocName('new-reportscenario_asset'));
-
-                if (!apiKey || !apiSecret) throw new Error('API key or secret not available');
-
-                try {
-                    console.log(JSON.stringify(formData));
-                    const response = await axios.post(ApiConstant.UPDATE_FILE_IMAGE, formData, {
-                        headers: CommonUtils.Header_Image(apiKey, apiSecret),
-                    });
-                    console.log(response);
-
-                    if (response.status === 200) {
-                        console.log('Upload successful');
-                        uploadedImageUrls.push(response.data.message.file_url);
-                        imageArray.splice(0, 1);
-                    } else {
-                        console.error('Error uploading image: Invalid status or undefined file_url');
-                    }
-                } catch (uploadError) {
-                    console.error('Error uploading image:', uploadError);
-                }
-            }
-
-            return uploadedImageUrls;
-        } catch (error) {
-            console.error('Error uploading images:', error);
-            throw error;
-        } finally {
-            setLoading(false);
-        }
-    };
     const handleSave = async () => {
-        const imageArray = [];
-        const formsData = [];
-        for (const key in userInput) {
-            if (userInput.hasOwnProperty(key)) {
-                const obj = userInput[key];
-                const imageValue = obj.image;
-                imageArray.push(imageValue);
-            }
-        }
+        const reportAssetData = allProducts.map((product) => {
+            const assetName = currentName[product.key] || '';
+            const assetCount = countInputMap[product.key] || '';
 
-        const uploadedImageUrls = await uploadImages(imageArray);
-
-        const keysToUpdate = Object.keys(userInput);
-
-        for (let i = 0; i < keysToUpdate.length; i++) {
-            const key = keysToUpdate[i];
-            const obj = userInput[key];
-
-            const matchingImage = uploadedImageUrls[i];
-
-            if (matchingImage) {
-                userInput[key].image = matchingImage;
-            }
-        }
-        const form_answer = [];
+            return {
+                docstatus: 0,
+                doctype: 'ReportPOSM',
+                parentfield: 'report_posm',
+                parenttype: 'DashboardRetail',
+                scenario_name: dataValues.scenario_name,
+                posm_name: assetName,
+                posm_position: assetCount,
+                uri_images: JSON.stringify(product.uri_image),
+            };
+        });
         try {
-            // setLoading(true);
-            console.log('load images sucsses');
-            for (const key in userInput) {
-                if (userInput.hasOwnProperty(key)) {
-                    const obj = userInput[key];
-                    const imageValue = obj.image;
-                    const name = obj.name;
-                    const count = obj.count;
-
-                    const data = {
-                        docstatus: 0,
-                        doctype: 'ReportPOSM',
-                        parentfield: 'report_posm',
-                        parenttype: 'DashboardRetail',
-                        scenario_name: dataValues.scenario_name,
-                        posm_name: name,
-                        posm_position: count,
-                        asset_image: imageValue,
-                    };
-
-                    formsData.push(data);
-                }
-            }
+            await AsyncStorage.setItem('savedFormPOSM' + route.params.scenarioName, JSON.stringify(reportAssetData));
+            setCurrentName({});
+            setCountInputMap({});
         } catch (error) {
-            console.error('Error submitting form:', error);
-            Alert.alert('Submit Failed', 'Submit failed. Please try again.');
+            console.error('Error saving report asset data:', error);
+            Alert.alert('Save Failed', 'Save failed. Please try again.');
         } finally {
             setLoading(false);
+            Alert.alert('Lưu thành công');
+            await navigation.goBack();
         }
-        console.log(formsData);
-        await AsyncStorage.setItem('savedFormPOSM' + route.params.scenarioName, JSON.stringify(formsData));
-
-        await navigation.goBack();
     };
+    useEffect(() => {
+        const updatedProduct = route.params?.updatedProduct;
+        if (updatedProduct) {
+            setAllProducts((prevProducts) => {
+                const index = prevProducts.findIndex((product) => product.key === updatedProduct.key);
+                setHasCapturedImage(true);
+                if (index !== -1) {
+                    return [...prevProducts.slice(0, index), updatedProduct, ...prevProducts.slice(index + 1)];
+                } else {
+                    return [...prevProducts, updatedProduct];
+                }
+            });
+        }
+    }, [route.params?.updatedProduct]);
     useEffect(() => {
         fetchData();
     }, [route.params]);
-    useEffect(() => {
-        if (submitSuccess) {
-            setCapturedImageUri('');
-        }
-    }, [submitSuccess]);
 
     const _renderHeader = () => {
         return (
@@ -259,8 +131,7 @@ const ScenarioPOSM = ({ route, navigation }: any) => {
         const keyParts = item.key.split('::');
         let checkDoctype = keyParts[0];
         let names = keyParts[1];
-        const capturedImageUri = capturedImageUriMap[item.key] || '';
-        const showDeleteButton = !!capturedImageUri;
+
         return (
             <Card mode="contained" style={styles.card}>
                 <Card.Title
@@ -293,30 +164,16 @@ const ScenarioPOSM = ({ route, navigation }: any) => {
                     <View>
                         <View style={{ alignItems: 'center' }}>
                             <Button
-                                style={styles.takeButton}
+                                style={[styles.takeButton, hasCapturedImage ? styles.capturedButton : null]}
                                 icon={'camera'}
                                 mode="outlined"
-                                textColor="#4697e8"
+                                textColor={hasCapturedImage ? '#22c55e' : '#4697e8'}
                                 onPress={() => handleCheckin(item.key)}
                             >
                                 Take
                             </Button>
                         </View>
-                        {showDeleteButton && (
-                            <TouchableRipple style={styles.takeButton} onPress={() => handleDeleteImage(item.key)}>
-                                <Button style={styles.takeButton} mode="outlined" textColor="#4697e8" icon={'close'}>
-                                    close
-                                </Button>
-                            </TouchableRipple>
-                        )}
                     </View>
-                    {capturedImageUri ? (
-                        <Card.Cover style={styles.image} source={{ uri: capturedImageUri }} />
-                    ) : (
-                        <Card.Content>
-                            <Card.Title title="No Image" />
-                        </Card.Content>
-                    )}
                 </View>
             </Card>
         );
@@ -347,8 +204,8 @@ const ScenarioPOSM = ({ route, navigation }: any) => {
                 )}
                 <View style={styles.saveButtonContainer}>
                     <Button
-                        style={styles.saveButton}
-                        textColor="#4697e8"
+                        style={[styles.takeButton, hasCapturedImage ? styles.capturedButton : null]}
+                        textColor={hasCapturedImage ? '#22c55e' : '#4697e8'}
                         icon={'content-save'}
                         mode="elevated"
                         onPress={handleSave}
@@ -458,6 +315,9 @@ const styles = StyleSheet.create({
         backgroundColor: 'gray',
         marginVertical: 4,
         marginHorizontal: 20,
+    },
+    capturedButton: {
+        borderColor: '#22c55e',
     },
 });
 

@@ -127,8 +127,6 @@ const Product = ({ route }: any) => {
         }
     };
     useEffect(() => {
-        console.log(capturedImageUri);
-
         fetchData();
     }, [route.params]);
     const handleRetry = () => {
@@ -226,8 +224,6 @@ const Product = ({ route }: any) => {
         }
     };
     const handleSave = async () => {
-        console.log('User Input:', userInput);
-
         try {
             setLoading(true);
             const uploadedImageUri = await uploadImage();

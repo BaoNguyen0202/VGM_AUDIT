@@ -17,6 +17,9 @@ import ScenarioSKU from './src/components/ScenarioType/ScenarioSKU';
 import ScenarioASSET from './src/components/ScenarioType/ScenarioASSET';
 import ScenarioPOSM from './src/components/ScenarioType/ScenarioPOSM';
 import DetailScreen from './src/screens/DetailScreen';
+import Pickture from './src/screens/ListPickture/Pickture';
+import PicktureAsset from './src/screens/ListPickture/PicktureAsset';
+import PickturePosm from './src/screens/ListPickture/PickturePosm';
 
 MapLibreGL.setAccessToken(null);
 const Stack = createStackNavigator();
@@ -46,6 +49,9 @@ const App = () => {
                     <Stack.Screen name="ScenarioSKU" component={ScenarioSKU} options={{ headerShown: false }} />
                     <Stack.Screen name="ScenarioASSET" component={ScenarioASSET} options={{ headerShown: false }} />
                     <Stack.Screen name="ScenarioPOSM" component={ScenarioPOSM} options={{ headerShown: false }} />
+                    <Stack.Screen name="Pickture" component={Pickture} options={{ headerShown: false }} />
+                    <Stack.Screen name="PicktureAsset" component={PicktureAsset} options={{ headerShown: false }} />
+                    <Stack.Screen name="PickturePosm" component={PickturePosm} options={{ headerShown: false }} />
                 </Stack.Navigator>
             </NavigationContainer>
         </PaperProvider>

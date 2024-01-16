@@ -1,15 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { FlatList, StyleSheet, View } from 'react-native';
+import { Alert, FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
 import axios from 'axios';
 import { ActivityIndicator, Avatar, Button, Card, Icon, IconButton, Modal, Portal, Text } from 'react-native-paper';
-import { ApiConstant, ScreenConstant } from '../const';
+import { ApiConstant, AppConstant, ScreenConstant } from '../const';
 import LinearGradient from 'react-native-linear-gradient';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { CommonUtils } from '../utils';
 
 const ScenarioScreen = ({ route, navigation }: any) => {
     const [loading, setLoading] = useState(true);
     const [scenarios, setScenarios] = useState<any[]>([]);
     const [responseData, setResponseData] = useState<any>(null);
-
+    const apiKey = CommonUtils.storage.getString(AppConstant.Api_key);
+    const apiSecret = CommonUtils.storage.getString(AppConstant.Api_secret);
     const LeftContent = () => <Icon source={'book-multiple-outline'} size={24} color="#22c55e" />;
     const rightContent = () => (
         <View style={styles.rightContentContainer}>
@@ -21,7 +24,6 @@ const ScenarioScreen = ({ route, navigation }: any) => {
             const { scenarioName } = route.params;
             const response = await axios.get(ApiConstant.GET_SCENARIO + scenarioName);
             const data = response.data;
-            console.log(data, 'zzz');
 
             if (response.status === 200) {
                 const scenarioLinks = data._link_titles;
@@ -43,9 +45,7 @@ const ScenarioScreen = ({ route, navigation }: any) => {
     };
     const productWithDoctype = (scenarioId: any) => {
         const { scenarioName } = route.params;
-        console.log(scenarioId);
         const [doctype, scenarioIdWithoutDoctype] = scenarioId.split('::');
-        console.log(doctype);
         if (doctype == 'Scenario_SKU') {
             navigation.navigate(ScreenConstant.SCENARIOSKU, { scenarioId, scenarioName });
         }
@@ -57,6 +57,77 @@ const ScenarioScreen = ({ route, navigation }: any) => {
         }
 
         // navigation.navigate(ScreenConstant.PRODUCT, { scenarioId, scenarioName });
+    };
+    const handleGoBackHomeCard = async () => {
+        const { scenarioName } = route.params;
+
+        const formSKUString = await AsyncStorage.getItem('savedFormSKU' + scenarioName);
+        const formPOSSString = await AsyncStorage.getItem('savedFormPOSM' + scenarioName);
+        const formASSETString = await AsyncStorage.getItem('savedFormASSET' + scenarioName);
+
+        const formSKU = formSKUString ? JSON.parse(formSKUString) : null;
+        const formPOSS = formPOSSString ? JSON.parse(formPOSSString) : null;
+        const formASSET = formASSETString ? JSON.parse(formASSETString) : null;
+
+        if (!formSKU || !formPOSS || !formASSET) {
+            Alert.alert('Bạn chưa hoàn thành báo cáo!', 'Bạn có chắc rời đi không?', [
+                {
+                    text: 'No',
+                    style: 'cancel',
+                },
+                {
+                    text: 'Yes',
+                    onPress: () => {
+                        navigation.goBack();
+                    },
+                },
+            ]);
+            return;
+        }
+        setLoading(true);
+
+        try {
+            const data = {
+                docstatus: 0,
+                doctype: 'DashboardRetail',
+                retail: scenarioName,
+                check_longitude: '105.77351976716446',
+                check_latitude: '21.037335873828784',
+                report_product: formSKU,
+                report_posm: formPOSS,
+                report_asset: formASSET,
+            };
+
+            const dataPost = {
+                doc: JSON.stringify(data),
+                action: 'Save',
+            };
+
+            if (!apiKey || !apiSecret) {
+                throw new Error('API key or secret not available');
+            }
+
+            const response = await axios.post(ApiConstant.POST_SAVE_DOCS, dataPost, {
+                headers: CommonUtils.Auth_header(apiKey, apiSecret),
+            });
+
+            if (response.status === 200) {
+                console.log('Submit successful.');
+                await AsyncStorage.removeItem('savedFormSKU' + scenarioName);
+                await AsyncStorage.removeItem('savedFormPOSM' + scenarioName);
+                await AsyncStorage.removeItem('savedFormASSET' + scenarioName);
+
+                Alert.alert('gửi báo cáo thành công');
+            } else {
+                console.error('Unexpected response status:', response.status);
+            }
+        } catch (error) {
+            console.error('An error occurred:', error);
+        } finally {
+            setLoading(false);
+        }
+
+        await navigation.goBack();
     };
     useEffect(() => {
         fetchData();
@@ -83,6 +154,20 @@ const ScenarioScreen = ({ route, navigation }: any) => {
                     }}
                 /> */}
             </View>
+        );
+    };
+    const _renderCheckout = () => {
+        return (
+            <TouchableOpacity
+                style={{ marginBottom: 20 }}
+                onPress={() => {
+                    handleGoBackHomeCard();
+                }}
+            >
+                <View style={styles.checkoutContainer}>
+                    <Text style={styles.checkout}>Checkout</Text>
+                </View>
+            </TouchableOpacity>
         );
     };
     const renderScenarioItem = ({ item }: any) => {
@@ -150,6 +235,7 @@ const ScenarioScreen = ({ route, navigation }: any) => {
                     </View>
                 )}
             </View>
+            <View>{_renderCheckout()}</View>
         </View>
     );
 };
@@ -218,6 +304,26 @@ const styles = StyleSheet.create({
     },
     iconButton: {
         marginLeft: -5,
+    },
+    checkout: {
+        fontSize: 24,
+        color: '#881111',
+        textAlign: 'center',
+        flex: 1,
+        fontWeight: '500',
+    },
+    checkoutContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        borderColor: '#881111',
+        borderWidth: 1,
+        backgroundColor: '#F4F6F8',
+        borderTopStartRadius: 20,
+        borderTopRightRadius: 20,
+        borderBottomStartRadius: 20,
+        borderBottomRightRadius: 20,
     },
 });
 

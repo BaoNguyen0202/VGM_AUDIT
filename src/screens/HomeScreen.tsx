@@ -20,7 +20,7 @@ const Home = ({ navigation }: any) => {
             <View style={styles.walletContainer}>
                 {renderIconWithText('account', 'Account', '#12a364')}
                 {renderIconWithText('bell', 'Thông báo', 'gray')}
-                {renderIconWithText('cog', 'Cài đặt', '#e84646')}
+                {renderIconWithText('cog', 'Cài đặt', '#881111')}
             </View>
         );
     };

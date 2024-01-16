@@ -25,17 +25,8 @@ const ScenarioSKU = ({ route, navigation }: any) => {
     const [productData, setProductData] = useState<any[]>([]);
     const [responseData, setResponseData] = useState<any>(null);
     const [loading, setLoading] = useState(true);
-    const [nameProduct, setNameProduct] = useState<string | null>(null);
-    const [capturedImageUriMap, setCapturedImageUriMap] = useState<Record<string, string>>({}); // Thêm state mới để theo dõi ảnh cho từng card
-    const [capturedImageUri, setCapturedImageUri] = useState('');
-    const [deleteButtonVisible, setDeleteButtonVisible] = useState<boolean>(false);
-    const [userInput, setUserInput] = useState<Record<string, { name: string; count: string; image: string }>>({});
-    const [currentName, setCurrentName] = useState<Record<string, string>>({});
-    const [countInputMap, setCountInputMap] = useState<Record<string, string>>({});
-    const apiKey = CommonUtils.storage.getString(AppConstant.Api_key);
-    const apiSecret = CommonUtils.storage.getString(AppConstant.Api_secret);
-    const [userNameStore] = useMMKVString(AppConstant.userNameStore);
-    const [submitSuccess, setSubmitSuccess] = useState<boolean>(false);
+    const [allProducts, setAllProducts] = useState<any[]>([]);
+    const [hasCapturedImage, setHasCapturedImage] = useState(false);
 
     const LeftContent = () => <Icon source={'note-check-outline'} size={24} color="#22c55e" />;
     const fetchData = async () => {
@@ -50,6 +41,7 @@ const ScenarioSKU = ({ route, navigation }: any) => {
 
             if (response.status === 200) {
                 const scenarioLinks = data._link_titles;
+
                 const scenarioList = Object.entries(scenarioLinks).map(([key, value]) => ({ key, value }));
                 setProductData(scenarioList);
                 setResponseData(data);
@@ -67,158 +59,68 @@ const ScenarioSKU = ({ route, navigation }: any) => {
         fetchData();
     };
     const handleCheckin = async (key: string) => {
-        try {
-            const granted = await PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.CAMERA);
-            granted ? openCamera(key) : requestCameraPermission();
-        } catch (error) {
-            console.error('Error checking or requesting camera permission:', error);
-        }
-    };
-    const openCamera = (key: string) => {
-        openImagePickerCamera((uri: any) => {
-            setNameProduct(key);
-            setCapturedImageUriMap((prev) => ({ ...prev, [key]: uri }));
-            setCapturedImageUri(uri);
+        const selectedProduct = productData.find((product) => product.key === key);
+        const { scenarioName } = route.params;
 
-            setDeleteButtonVisible(true);
-            Keyboard.dismiss();
-            setUserInput((prev) => ({
-                ...prev,
-                [key]: {
-                    name: currentName[key] || '',
-                    count: countInputMap[key] || '',
-                    image: uri,
-                },
-            }));
-        });
-    };
-    const handleDeleteImage = (key: string) => {
-        setCapturedImageUriMap((prev) => ({ ...prev, [nameProduct || '']: '' }));
-        setDeleteButtonVisible(false);
-    };
-    const requestCameraPermission = async () => {
-        try {
-            const requestResult = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.CAMERA);
-
-            if (requestResult === PermissionsAndroid.RESULTS.GRANTED) openCamera;
-            else console.log('Camera permission denied');
-        } catch (error) {
-            console.error('Error checking or requesting camera permission:', error);
-        }
-    };
-    const uploadImages = async (imageArray: any) => {
-        try {
-            const uploadedImageUrls = [];
-
-            while (imageArray.length > 0) {
-                setLoading(true);
-
-                const capturedImageUri = imageArray[0];
-                const fileExtension = capturedImageUri.split('.').pop();
-                const fileName = `my_profile_${Date.now()}.${fileExtension}`;
-                const formData = new FormData();
-                formData.append('file', {
-                    uri: capturedImageUri,
-                    type: `image/${fileExtension}`,
-                    name: fileName,
-                });
-                formData.append('is_private', 0);
-                formData.append('folder', 'Home');
-                formData.append('doctype', 'ReportScenario_SKU');
-                formData.append('fieldname', 'photos_display');
-                formData.append('docname', CommonUtils.renderRandomDocName('new-reportscenario_asset'));
-
-                if (!apiKey || !apiSecret) throw new Error('API key or secret not available');
-
-                try {
-                    console.log(JSON.stringify(formData));
-                    const response = await axios.post(ApiConstant.UPDATE_FILE_IMAGE, formData, {
-                        headers: CommonUtils.Header_Image(apiKey, apiSecret),
-                    });
-                    console.log(response);
-
-                    if (response.status === 200) {
-                        console.log('Upload successful');
-                        uploadedImageUrls.push(response.data.message.file_url);
-                        imageArray.splice(0, 1);
-                    } else {
-                        console.error('Error uploading image: Invalid status or undefined file_url');
-                    }
-                } catch (uploadError) {
-                    console.error('Error uploading image:', uploadError);
-                }
-            }
-
-            return uploadedImageUrls;
-        } catch (error) {
-            console.error('Error uploading images:', error);
-            throw error;
-        } finally {
-            setLoading(false);
+        if (selectedProduct) {
+            navigation.navigate('Pickture', { selectedProduct, scenarioName });
         }
     };
 
     const handleSave = async () => {
-        const imageArray = [];
+        // Sử dụng giá trị từ allProducts
+
         const formsData = [];
-        for (const key in userInput) {
-            if (userInput.hasOwnProperty(key)) {
-                const obj = userInput[key];
-                const imageValue = obj.image;
-                imageArray.push(imageValue);
-            }
+
+        // Duyệt qua mảng allProducts để tạo dữ liệu
+        for (const product of allProducts) {
+            const formData = {
+                docstatus: 0,
+                doctype: 'ReportProduct_SKU',
+                parentfield: 'report_product',
+                parenttype: 'DashboardRetail',
+                scenario_name: dataValues.scenario_name,
+                product_name: product.value,
+                product_count: 0,
+                uri_images: JSON.stringify(product.uri_image),
+            };
+
+            formsData.push(formData);
         }
 
-        const uploadedImageUrls = await uploadImages(imageArray);
-        console.log('uploadedImageUrls:', uploadedImageUrls);
-
-        for (let i = 0; i < uploadedImageUrls.length; i++) {
-            const matchingImage = uploadedImageUrls[i];
-
-            try {
-                const data = {
-                    docstatus: 0,
-                    doctype: 'ReportProduct_SKU',
-                    parentfield: 'report_product',
-                    parenttype: 'DashboardRetail',
-                    scenario_name: dataValues.scenario_name,
-                    product_name: 'Nem nướng Cầu Tre',
-                    product_count: 0,
-                    photos: [
-                        {
-                            docstatus: 0,
-                            doctype: 'BoothPhotoProduct',
-                            parentfield: 'photos',
-                            parenttype: 'ReportProduct_SKU',
-                            uri_image: matchingImage,
-                        },
-                    ],
-                };
-                formsData.push(data);
-            } catch (error) {
-                console.error('Error submitting form:', error);
-                Alert.alert('Submit Failed', 'Submit failed. Please try again.');
-            } finally {
-                setLoading(false);
-            }
+        try {
+            await AsyncStorage.setItem('savedFormSKU' + route.params.scenarioName, JSON.stringify(formsData));
+            const a = await AsyncStorage.getItem('savedFormSKU' + route.params.scenarioName);
+        } catch (error) {
+            console.error('Error submitting form:', error);
+            Alert.alert('Submit Failed', 'Submit failed. Please try again.');
+        } finally {
+            setLoading(false);
+            Alert.alert('Lưu thành công');
+            await navigation.goBack();
         }
-        setCapturedImageUriMap({});
-        setCurrentName({});
-        setCountInputMap({});
-        await AsyncStorage.setItem('savedFormSKU' + route.params.scenarioName, JSON.stringify(formsData));
-
-        await navigation.goBack();
     };
 
     useEffect(() => {
+        const updatedProduct = route.params?.updatedProduct;
+        if (updatedProduct) {
+            setAllProducts((prevProducts) => {
+                const index = prevProducts.findIndex((product) => product.key === updatedProduct.key);
+                setHasCapturedImage(true);
+
+                if (index !== -1) {
+                    return [...prevProducts.slice(0, index), updatedProduct, ...prevProducts.slice(index + 1)];
+                } else {
+                    return [...prevProducts, updatedProduct];
+                }
+            });
+        }
+    }, [route.params?.updatedProduct]);
+    useEffect(() => {}, [allProducts]);
+    useEffect(() => {
         fetchData();
     }, [route.params]);
-    useEffect(() => {
-        if (submitSuccess) {
-            setCapturedImageUri('');
-            console.log('log sucses');
-        }
-    }, [submitSuccess]);
+
     const _renderHeader = () => {
         return (
             <View style={styles.headerContainer}>
@@ -248,8 +150,6 @@ const ScenarioSKU = ({ route, navigation }: any) => {
         const keyParts = item.key.split('::');
         let checkDoctype = keyParts[0];
         let names = keyParts[1];
-        const capturedImageUri = capturedImageUriMap[item.key] || '';
-        const showDeleteButton = !!capturedImageUri;
         return (
             <View>
                 <Card mode="contained" style={styles.card}>
@@ -269,35 +169,16 @@ const ScenarioSKU = ({ route, navigation }: any) => {
                         <View>
                             <View style={styles.cardSection}>
                                 <Button
-                                    style={styles.takeButton}
+                                    style={[styles.takeButton, hasCapturedImage ? styles.capturedButton : null]}
                                     icon={'camera'}
                                     mode="outlined"
-                                    textColor="#4697e8"
+                                    textColor={hasCapturedImage ? '#22c55e' : '#4697e8'}
                                     onPress={() => handleCheckin(item.key)}
                                 >
                                     Take
                                 </Button>
                             </View>
-                            {showDeleteButton && (
-                                <TouchableRipple style={styles.takeButton} onPress={() => handleDeleteImage(item.key)}>
-                                    <Button
-                                        style={styles.takeButton}
-                                        mode="outlined"
-                                        textColor="#4697e8"
-                                        icon={'close'}
-                                    >
-                                        close
-                                    </Button>
-                                </TouchableRipple>
-                            )}
                         </View>
-                        {capturedImageUri ? (
-                            <Card.Cover style={styles.image} source={{ uri: capturedImageUri }} />
-                        ) : (
-                            <Card.Content>
-                                <Card.Title title="No Image" />
-                            </Card.Content>
-                        )}
                     </View>
                 </Card>
             </View>
@@ -329,8 +210,8 @@ const ScenarioSKU = ({ route, navigation }: any) => {
                 )}
                 <View style={styles.saveButtonContainer}>
                     <Button
-                        style={styles.saveButton}
-                        textColor="#4697e8"
+                        style={[styles.takeButton, hasCapturedImage ? styles.capturedButton : null]}
+                        textColor={hasCapturedImage ? '#22c55e' : '#4697e8'}
                         icon={'content-save'}
                         mode="elevated"
                         onPress={handleSave}
@@ -451,6 +332,9 @@ const styles = StyleSheet.create({
     },
     iconButton: {
         marginLeft: -5,
+    },
+    capturedButton: {
+        borderColor: '#22c55e',
     },
 });
 

@@ -8,11 +8,11 @@ import LoginScreen from './src/screens/login/Login';
 import ChangePasswordScreen from './src/screens/login/ChangePassword';
 import ForgotPasswordScreen from './src/screens/login/ForgotPassword';
 import Product from './src/screens/Product';
-import HomeCard from './src/components/HomeCard';
-import Home from './src/screens/HomeScreen';
+import HomeCard from './src/components/VisitCard/HomeCard';
+import Home from './src/screens/Home/HomeScreen';
 import CameraModal from './src/components/CameraModal';
 import SubmitFormModal from './src/components/SubmitForm';
-import ScenarioScreen from './src/screens/ScenatioScreen';
+import ScenarioScreen from './src/screens/Scenario/ScenatioScreen';
 import ScenarioSKU from './src/components/ScenarioType/ScenarioSKU';
 import ScenarioASSET from './src/components/ScenarioType/ScenarioASSET';
 import ScenarioPOSM from './src/components/ScenarioType/ScenarioPOSM';
@@ -20,6 +20,8 @@ import DetailScreen from './src/screens/DetailScreen';
 import Pickture from './src/screens/ListPickture/Pickture';
 import PicktureAsset from './src/screens/ListPickture/PicktureAsset';
 import PickturePosm from './src/screens/ListPickture/PickturePosm';
+import { ScreenConstant } from './src/const';
+import ProfileScreen from './src/screens/Profile/ProfileScreen';
 
 MapLibreGL.setAccessToken(null);
 const Stack = createStackNavigator();
@@ -35,23 +37,68 @@ const App = () => {
         <PaperProvider theme={newTheme}>
             <NavigationContainer>
                 <Stack.Navigator>
-                    <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
                     <Stack.Screen
-                        name="ForgotPassWord"
+                        name={ScreenConstant.LOG_IN}
+                        component={LoginScreen}
+                        options={{ headerShown: false }}
+                    />
+                    <Stack.Screen
+                        name={ScreenConstant.FORGOTPASSWORD}
                         component={ForgotPasswordScreen}
                         options={{ headerShown: false }}
                     />
-                    <Stack.Screen name="ChangePass" component={ChangePasswordScreen} options={{ headerShown: false }} />
-                    <Stack.Screen name="Root" component={RootNavigator} options={{ headerShown: false }} />
-                    <Stack.Screen name="Product" component={Product} options={{ headerShown: false }} />
-                    <Stack.Screen name="Home" component={Home} options={{ headerShown: false }} />
-                    <Stack.Screen name="Scenario" component={ScenarioScreen} options={{ headerShown: false }} />
-                    <Stack.Screen name="ScenarioSKU" component={ScenarioSKU} options={{ headerShown: false }} />
-                    <Stack.Screen name="ScenarioASSET" component={ScenarioASSET} options={{ headerShown: false }} />
-                    <Stack.Screen name="ScenarioPOSM" component={ScenarioPOSM} options={{ headerShown: false }} />
-                    <Stack.Screen name="Pickture" component={Pickture} options={{ headerShown: false }} />
-                    <Stack.Screen name="PicktureAsset" component={PicktureAsset} options={{ headerShown: false }} />
-                    <Stack.Screen name="PickturePosm" component={PickturePosm} options={{ headerShown: false }} />
+                    <Stack.Screen
+                        name={ScreenConstant.CHANGE_PASS}
+                        component={ChangePasswordScreen}
+                        options={{ headerShown: false }}
+                    />
+                    <Stack.Screen
+                        name={ScreenConstant.ROOT}
+                        component={RootNavigator}
+                        options={{ headerShown: false }}
+                    />
+                    <Stack.Screen name={ScreenConstant.PRODUCT} component={Product} options={{ headerShown: false }} />
+                    <Stack.Screen name={ScreenConstant.HOME} component={Home} options={{ headerShown: false }} />
+                    <Stack.Screen
+                        name={ScreenConstant.SCENARIO}
+                        component={ScenarioScreen}
+                        options={{ headerShown: false }}
+                    />
+                    <Stack.Screen
+                        name={ScreenConstant.SCENARIOSKU}
+                        component={ScenarioSKU}
+                        options={{ headerShown: false }}
+                    />
+                    <Stack.Screen
+                        name={ScreenConstant.SCENARIOASSET}
+                        component={ScenarioASSET}
+                        options={{ headerShown: false }}
+                    />
+                    <Stack.Screen
+                        name={ScreenConstant.SCENARIOPOSM}
+                        component={ScenarioPOSM}
+                        options={{ headerShown: false }}
+                    />
+                    <Stack.Screen
+                        name={ScreenConstant.PCKTURE_SKU}
+                        component={Pickture}
+                        options={{ headerShown: false }}
+                    />
+                    <Stack.Screen
+                        name={ScreenConstant.PCKTURE_ASSET}
+                        component={PicktureAsset}
+                        options={{ headerShown: false }}
+                    />
+                    <Stack.Screen
+                        name={ScreenConstant.PCKTURE_POSM}
+                        component={PickturePosm}
+                        options={{ headerShown: false }}
+                    />
+                    <Stack.Screen
+                        name={ScreenConstant.PROFILE}
+                        component={ProfileScreen}
+                        options={{ headerShown: false }}
+                    />
                 </Stack.Navigator>
             </NavigationContainer>
         </PaperProvider>

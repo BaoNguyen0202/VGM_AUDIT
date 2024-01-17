@@ -1,7 +1,7 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import { Alert, FlatList, StyleSheet, View } from 'react-native';
-import { ActivityIndicator, Button, Card, Icon, IconButton, Text, TextInput } from 'react-native-paper';
+import { Alert, FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Button, Card, Icon, IconButton, Surface, Text, TextInput } from 'react-native-paper';
 import { ApiConstant } from '../../const';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -14,26 +14,32 @@ const ScenarioPOSM = ({ route, navigation }: any) => {
     const [countInputMap, setCountInputMap] = useState<Record<string, string>>({});
     const [allProducts, setAllProducts] = useState<any[]>([]);
     const [hasCapturedImage, setHasCapturedImage] = useState(false);
+    const [isFormOpen, setIsFormOpen] = useState<Record<string, boolean>>({});
 
     const LeftContent = () => <Icon source={'note-check-outline'} size={24} color="#22c55e" />;
 
     const fetchData = async () => {
         try {
-            const { scenarioId, scenarioName } = route.params;
-            const [doctype, scenarioIdWithoutDoctype] = scenarioId.split('::');
-            setScenarioIdWithoutDoctype(scenarioIdWithoutDoctype);
-            const response = await axios.get(
-                ApiConstant.GET_PRODUCT + `doctype=${doctype}&name=${scenarioIdWithoutDoctype}`,
-            );
-            const data = response.data;
+            let success = false;
 
-            if (response.status === 200) {
-                const scenarioLinks = data._link_titles;
-                const scenarioList = Object.entries(scenarioLinks).map(([key, value]) => ({ key, value }));
-                setProductData(scenarioList);
-                setResponseData(data);
-            } else {
-                console.error('Error fetching product data:', response.statusText);
+            while (!success) {
+                const { scenarioId, scenarioName } = route.params;
+                const [doctype, scenarioIdWithoutDoctype] = scenarioId.split('::');
+                setScenarioIdWithoutDoctype(scenarioIdWithoutDoctype);
+                const response = await axios.get(
+                    ApiConstant.GET_PRODUCT + `doctype=${doctype}&name=${scenarioIdWithoutDoctype}`,
+                );
+                const data = response.data;
+
+                if (response.status === 200) {
+                    const scenarioLinks = data._link_titles;
+                    const scenarioList = Object.entries(scenarioLinks).map(([key, value]) => ({ key, value }));
+                    setProductData(scenarioList);
+                    setResponseData(data);
+                    success = true;
+                } else {
+                    console.error('Error fetching product data:', response.statusText);
+                }
             }
         } catch (error) {
             console.error('Error fetching product data:', error);
@@ -53,7 +59,9 @@ const ScenarioPOSM = ({ route, navigation }: any) => {
             navigation.navigate('PickturePosm', { selectedProduct, scenarioName });
         }
     };
-
+    const handleToggleForm = (key: string) => {
+        setIsFormOpen((prev) => ({ ...prev, [key]: !prev[key] }));
+    };
     const handleSave = async () => {
         const reportAssetData = allProducts.map((product) => {
             const assetName = currentName[product.key] || '';
@@ -140,41 +148,54 @@ const ScenarioPOSM = ({ route, navigation }: any) => {
                     left={LeftContent}
                 />
                 <View style={styles.line} />
-
-                <Card.Content>
-                    <View style={styles.cardSection}>
-                        <TextInput
-                            style={styles.countInput}
-                            label={'name'}
-                            value={currentName[item.key] || ''}
-                            onChangeText={(text) => setCurrentName((prev) => ({ ...prev, [item.key]: text }))}
-                        />
-                    </View>
-
-                    <View style={styles.cardSection}>
-                        <TextInput
-                            style={styles.countInput}
-                            label={'position'}
-                            value={countInputMap[item.key] || ''}
-                            onChangeText={(text) => setCountInputMap((prev) => ({ ...prev, [item.key]: text }))}
-                        />
-                    </View>
-                </Card.Content>
-                <View style={styles.cardHeader}>
-                    <View>
-                        <View style={{ alignItems: 'center' }}>
-                            <Button
-                                style={[styles.takeButton, hasCapturedImage ? styles.capturedButton : null]}
-                                icon={'camera'}
-                                mode="outlined"
-                                textColor={hasCapturedImage ? '#22c55e' : '#4697e8'}
-                                onPress={() => handleCheckin(item.key)}
-                            >
-                                Take
-                            </Button>
+                <TouchableOpacity onPress={() => handleToggleForm(item.key)}>
+                    <View style={styles.cardHeader}>
+                        <View style={styles.cardSection}>
+                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                <Surface style={styles.surfaceForm} elevation={4}>
+                                    <Icon color="#12a364" source={'form-select'} size={24} />
+                                </Surface>
+                                <Text>Điền form</Text>
+                            </View>
+                            <Icon source={isFormOpen[item.key] ? 'chevron-down' : 'chevron-right'} size={24} />
                         </View>
                     </View>
-                </View>
+                </TouchableOpacity>
+                {isFormOpen[item.key] && (
+                    <Card.Content>
+                        <View style={styles.cardSection}>
+                            <TextInput
+                                style={styles.countInput}
+                                label={'name'}
+                                value={currentName[item.key] || ''}
+                                onChangeText={(text) => setCurrentName((prev) => ({ ...prev, [item.key]: text }))}
+                            />
+                        </View>
+
+                        <View style={styles.cardSection}>
+                            <TextInput
+                                style={styles.countInput}
+                                label={'position'}
+                                value={countInputMap[item.key] || ''}
+                                onChangeText={(text) => setCountInputMap((prev) => ({ ...prev, [item.key]: text }))}
+                            />
+                        </View>
+                    </Card.Content>
+                )}
+
+                <TouchableOpacity onPress={() => handleCheckin(item.key)}>
+                    <View style={styles.cardHeader}>
+                        <View style={styles.cardSection}>
+                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                <Surface style={styles.surface} elevation={4}>
+                                    <Icon color="#8e2ad1" source={'camera-outline'} size={24} />
+                                </Surface>
+                                <Text>Chụp ảnh</Text>
+                            </View>
+                            <Icon source={'chevron-right'} size={24} />
+                        </View>
+                    </View>
+                </TouchableOpacity>
             </Card>
         );
     };
@@ -203,14 +224,8 @@ const ScenarioPOSM = ({ route, navigation }: any) => {
                     </View>
                 )}
                 <View style={styles.saveButtonContainer}>
-                    <Button
-                        style={[styles.takeButton, hasCapturedImage ? styles.capturedButton : null]}
-                        textColor={hasCapturedImage ? '#22c55e' : '#4697e8'}
-                        icon={'content-save'}
-                        mode="elevated"
-                        onPress={handleSave}
-                    >
-                        Save
+                    <Button style={styles.takeButton} textColor={'#FFF'} icon={'content-save'} onPress={handleSave}>
+                        Lưu
                     </Button>
                 </View>
             </View>
@@ -227,6 +242,7 @@ const styles = StyleSheet.create({
         marginTop: 8,
         marginBottom: 5,
         backgroundColor: '#FFF',
+        borderRadius: 20,
     },
     flatListContainer: {
         paddingHorizontal: 16,
@@ -282,8 +298,10 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
     },
     cardSection: {
-        justifyContent: 'center',
+        flex: 1,
         alignItems: 'center',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
     },
     countInput: {
         width: '100%',
@@ -294,8 +312,9 @@ const styles = StyleSheet.create({
     takeButton: {
         width: '100%',
         height: 40,
-        marginBottom: 8,
+        marginBottom: 20,
         borderColor: '#4697e8',
+        backgroundColor: '#881111',
     },
     headerContainer: {
         flexDirection: 'row',
@@ -318,6 +337,26 @@ const styles = StyleSheet.create({
     },
     capturedButton: {
         borderColor: '#22c55e',
+    },
+    surface: {
+        height: 50,
+        width: 50,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginRight: 16,
+        shadowColor: '#FFF',
+        borderRadius: 10,
+        backgroundColor: '#efe4f7',
+    },
+    surfaceForm: {
+        height: 50,
+        width: 50,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginRight: 16,
+        shadowColor: '#FFF',
+        borderRadius: 10,
+        backgroundColor: '#e4f7ef',
     },
 });
 

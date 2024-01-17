@@ -2,13 +2,14 @@ import React, { useEffect, useRef, useState } from 'react';
 import { FlatList, StyleSheet, View, ActivityIndicator, Alert, TouchableOpacity } from 'react-native';
 import { Card, Text, Avatar, Button, IconButton, Icon } from 'react-native-paper';
 import axios from 'axios';
-import { ApiConstant, AppConstant, ScreenConstant } from '../const';
-import LinearGradient from 'react-native-linear-gradient';
-import { CommonUtils } from '../utils';
+import { ApiConstant, AppConstant, ScreenConstant } from '../../const';
+import { CommonUtils } from '../../utils';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import FilterView from './CustomSheet/FilterView';
+import FilterView from '../CustomSheet/FilterView';
 import BottomSheet from '@gorhom/bottom-sheet';
-
+interface RootState {
+    selectedScenarios: string[];
+}
 const HomeCard = ({ navigation }: any) => {
     const [scenarioData, setScenarioData] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
@@ -91,36 +92,41 @@ const HomeCard = ({ navigation }: any) => {
 
     const fetchData = async () => {
         try {
-            const apiKey = CommonUtils.storage.getString(AppConstant.Api_key);
-            const apiSecret = CommonUtils.storage.getString(AppConstant.Api_secret);
+            let success = false;
 
-            if (!apiKey || !apiSecret) {
-                throw new Error('API key or secret not available');
-            }
+            while (!success) {
+                const apiKey = await CommonUtils.storage.getString(AppConstant.Api_key);
+                const apiSecret = await CommonUtils.storage.getString(AppConstant.Api_secret);
 
-            const data = {
-                doctype: 'Retail_Audit',
-                fields: ['name', 'retail_name', 'modified'],
-                order_by: 'modified desc',
-                filters: [],
-                start: 0,
-                page_length: 4,
-            };
+                if (!apiKey || !apiSecret) {
+                    throw new Error('API key or secret not available');
+                }
 
-            const response = await axios.post(ApiConstant.POST_ALL_SCENARIO, data, {
-                headers: CommonUtils.Auth_header(apiKey, apiSecret),
-            });
+                const data = {
+                    doctype: 'Retail_Audit',
+                    fields: ['name', 'retail_name', 'modified'],
+                    order_by: 'modified desc',
+                    filters: [],
+                    start: 0,
+                    page_length: 4,
+                };
 
-            if (response.data?.message?.values) {
-                const formattedData = response.data.message.values.map((value: any) => ({
-                    name: value[0],
-                    retail_name: value[1],
-                    modified: value[2],
-                }));
+                const response = await axios.post(ApiConstant.POST_ALL_SCENARIO, data, {
+                    headers: CommonUtils.Auth_header(apiKey, apiSecret),
+                });
 
-                setScenarioData(formattedData);
-            } else {
-                console.error('Invalid response format:', response.data);
+                if (response.data?.message?.values) {
+                    const formattedData = response.data.message.values.map((value: any) => ({
+                        name: value[0],
+                        retail_name: value[1],
+                        modified: value[2],
+                    }));
+
+                    setScenarioData(formattedData);
+                    success = true;
+                } else {
+                    console.error('Invalid response format:', response.data);
+                }
             }
         } catch (error) {
             console.error('Error fetching data:', error);
@@ -279,6 +285,7 @@ const styles = StyleSheet.create({
         marginTop: 8,
         marginBottom: 5,
         backgroundColor: '#FFF',
+        borderRadius: 20,
     },
     line: {
         height: 0.7,

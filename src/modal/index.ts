@@ -193,3 +193,11 @@ export interface FormAnswer {
     question_name: string;
     question_value: any;
 }
+export interface IWidget {
+    id: number;
+    name: string;
+    icon: string;
+    navigate: string | any;
+    isUse?: boolean;
+    color?: string;
+}

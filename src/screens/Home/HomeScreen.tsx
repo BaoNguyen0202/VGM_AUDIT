@@ -2,8 +2,8 @@ import React from 'react';
 import { View, StyleSheet, TouchableNativeFeedback } from 'react-native';
 import { Avatar, Icon, IconButton, Text } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import AppContainer from '../components/AppContainer';
-import { ScreenConstant } from '../const';
+import { ScreenConstant } from '../../const';
+import AppContainer from '../../components/CustomApp/AppContainer';
 
 const Home = ({ navigation }: any) => {
     const renderUiWidget = () => {
@@ -18,9 +18,10 @@ const Home = ({ navigation }: any) => {
 
         return (
             <View style={styles.walletContainer}>
-                {renderIconWithText('account', 'Account', '#12a364')}
-                {renderIconWithText('bell', 'Thông báo', 'gray')}
-                {renderIconWithText('cog', 'Cài đặt', '#881111')}
+                {renderIconWithText('account-outline', 'Account', '#12a364')}
+                {renderIconWithText('bell-outline', 'Thông báo', '#3b83f7')}
+                {renderIconWithText('briefcase-outline', 'Điểm bán', '#f5bc6c')}
+                {renderIconWithText('cog-outline', 'Cài đặt', '#2cb8db')}
             </View>
         );
     };
@@ -97,7 +98,10 @@ const styles = StyleSheet.create({
         padding: 8,
         elevation: 5,
         backgroundColor: '#FFF',
-        borderRadius: 8,
+        borderRadius: 20,
+        shadowColor: '#FFF',
+        paddingVertical: 26,
+        paddingTop: 18,
     },
     otherIconsContainer: {
         alignItems: 'center',

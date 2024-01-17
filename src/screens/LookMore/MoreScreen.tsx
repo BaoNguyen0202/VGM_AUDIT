@@ -1,64 +1,63 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, StyleSheet, TouchableNativeFeedback } from 'react-native';
 import { Icon, Text } from 'react-native-paper';
 import { View as NativeView } from 'react-native';
-import { ScreenConstant } from '../const';
-
-interface IWidget {
-    id: number;
-    name: string;
-    icon: string;
-    navigate: string | any;
-    isUse?: boolean;
-    color?: string;
-}
+import { AppConstant, ScreenConstant } from '../../const';
+import { useMMKVString } from 'react-native-mmkv';
+import { IWidget } from '../../modal';
 
 const MoreScreen = ({ navigation }: any) => {
+    const [userNameStore, setUserNameStore] = useMMKVString(AppConstant.userNameStore);
+    const [passwordStore, setPasswordStore] = useMMKVString(AppConstant.passwordStore);
+
     const DataWidget: IWidget[] = [
         {
             id: 1,
             name: 'Hồ sơ',
             icon: 'account-outline',
-            color: '#000',
-            navigate: ScreenConstant.LOG_IN,
+            color: '#12a364',
+            navigate: ScreenConstant.PROFILE,
         },
         {
             id: 2,
             name: 'Sản phẩm',
             icon: 'briefcase-outline',
-            color: '#000',
-            navigate: '',
+            color: '#f5bc6c',
+            navigate: ScreenConstant.LOG_IN,
         },
         {
             id: 3,
             name: 'Khuyến mại',
             icon: 'tag-outline',
-            color: '#000',
+            color: '#3b83f7',
             navigate: '',
         },
         {
             id: 4,
             name: 'Thông báo',
             icon: 'bell-outline',
-            color: '#000',
+            color: '#3b83f7',
             navigate: '',
         },
         {
             id: 5,
             name: 'Nhắc nhở',
             icon: 'bell-badge-outline',
-            color: '#000',
+            color: '#e03d3d',
             navigate: '',
         },
         {
             id: 6,
             name: 'hình ảnh',
             icon: 'image-multiple-outline',
-            color: '#000',
+            color: '#2cb8db',
             navigate: '',
         },
     ];
-
+    const clearUserAndPass = () => {
+        setUserNameStore('');
+        setPasswordStore('');
+    };
     const _renderHeader = () => {
         return (
             <View style={styles.headerContainer}>
@@ -71,13 +70,17 @@ const MoreScreen = ({ navigation }: any) => {
         <NativeView style={styles.safeArea}>
             {_renderHeader()}
             <View style={styles.mainLayout}>
-                <Text style={{ marginVertical: 8, color: 'gray' }}>danh mục</Text>
                 <View style={styles.walletContainer}>
                     <View style={styles.rowContainer}>
                         {DataWidget.slice(0, Math.ceil(DataWidget.length / 2)).map((widget) => (
                             <TouchableNativeFeedback
                                 key={widget.id}
-                                onPress={() => navigation.navigate(widget.navigate)}
+                                onPress={() => {
+                                    if (widget.navigate === ScreenConstant.LOG_IN) {
+                                        clearUserAndPass();
+                                    }
+                                    navigation.navigate(widget.navigate);
+                                }}
                             >
                                 <View style={[styles.otherIconsContainer, { flex: 1 }]}>
                                     <Icon source={widget.icon} size={28} color={widget.color} />
@@ -120,8 +123,9 @@ const styles = StyleSheet.create({
         elevation: 5,
         paddingVertical: 20,
         backgroundColor: '#FFF',
-        borderRadius: 8,
+        borderRadius: 20,
         flexDirection: 'column',
+        shadowColor: '#FFF',
     },
     otherIconsContainer: {
         alignItems: 'center',
@@ -130,7 +134,7 @@ const styles = StyleSheet.create({
     },
     iconText: {
         fontSize: 14,
-        color: '#000',
+        color: 'gray',
         marginTop: 8,
     },
     headerContainer: {

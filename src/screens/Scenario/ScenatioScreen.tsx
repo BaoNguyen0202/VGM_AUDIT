@@ -2,10 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { Alert, FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
 import axios from 'axios';
 import { ActivityIndicator, Avatar, Button, Card, Icon, IconButton, Modal, Portal, Text } from 'react-native-paper';
-import { ApiConstant, AppConstant, ScreenConstant } from '../const';
-import LinearGradient from 'react-native-linear-gradient';
+import { ApiConstant, AppConstant, ScreenConstant } from '../../const';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { CommonUtils } from '../utils';
+import { CommonUtils } from '../../utils';
 
 const ScenarioScreen = ({ route, navigation }: any) => {
     const [loading, setLoading] = useState(true);
@@ -19,19 +18,25 @@ const ScenarioScreen = ({ route, navigation }: any) => {
             <Text style={{ margin: 10, fontWeight: 'bold', color: 'green' }}> Checking</Text>
         </View>
     );
+
     const fetchData = async () => {
         try {
-            const { scenarioName } = route.params;
-            const response = await axios.get(ApiConstant.GET_SCENARIO + scenarioName);
-            const data = response.data;
+            let success = false;
 
-            if (response.status === 200) {
-                const scenarioLinks = data._link_titles;
-                const scenarioList = Object.entries(scenarioLinks).map(([key, value]) => ({ key, value }));
-                setScenarios(scenarioList);
-                setResponseData(data);
-            } else {
-                console.error('Error fetching product data:', response.statusText);
+            while (!success) {
+                const { scenarioName } = route.params;
+                const response = await axios.get(ApiConstant.GET_SCENARIO + scenarioName);
+                const data = response.data;
+
+                if (response.status === 200) {
+                    const scenarioLinks = data._link_titles;
+                    const scenarioList = Object.entries(scenarioLinks).map(([key, value]) => ({ key, value }));
+                    setScenarios(scenarioList);
+                    setResponseData(data);
+                    success = true;
+                } else {
+                    console.error('Error fetching product data:', response.statusText);
+                }
             }
         } catch (error) {
             console.error('Error fetching product data:', error);
@@ -58,6 +63,7 @@ const ScenarioScreen = ({ route, navigation }: any) => {
 
         // navigation.navigate(ScreenConstant.PRODUCT, { scenarioId, scenarioName });
     };
+
     const handleGoBackHomeCard = async () => {
         const { scenarioName } = route.params;
 
@@ -84,6 +90,7 @@ const ScenarioScreen = ({ route, navigation }: any) => {
             ]);
             return;
         }
+
         setLoading(true);
 
         try {
@@ -132,6 +139,33 @@ const ScenarioScreen = ({ route, navigation }: any) => {
     useEffect(() => {
         fetchData();
     }, [route.params]);
+    const _goBack = async () => {
+        const { scenarioName } = route.params;
+
+        const formSKUString = await AsyncStorage.getItem('savedFormSKU' + scenarioName);
+        const formPOSSString = await AsyncStorage.getItem('savedFormPOSM' + scenarioName);
+        const formASSETString = await AsyncStorage.getItem('savedFormASSET' + scenarioName);
+
+        const formSKU = formSKUString ? JSON.parse(formSKUString) : null;
+        const formPOSS = formPOSSString ? JSON.parse(formPOSSString) : null;
+        const formASSET = formASSETString ? JSON.parse(formASSETString) : null;
+
+        if (!formSKU || !formPOSS || !formASSET) {
+            Alert.alert('Bạn chưa hoàn thành báo cáo!', 'Bạn có chắc rời đi không?', [
+                {
+                    text: 'No',
+                    style: 'cancel',
+                },
+                {
+                    text: 'Yes',
+                    onPress: () => {
+                        navigation.goBack();
+                    },
+                },
+            ]);
+            return;
+        }
+    };
     const _renderHeader = () => {
         return (
             <View style={styles.headerContainer}>
@@ -140,7 +174,7 @@ const ScenarioScreen = ({ route, navigation }: any) => {
                     iconColor="#000"
                     size={24}
                     onPress={() => {
-                        navigation.goBack();
+                        _goBack();
                     }}
                 />
                 <Text style={styles.headerLabel}>Kịch bản</Text>
@@ -260,6 +294,7 @@ const styles = StyleSheet.create({
         marginTop: 8,
         marginBottom: 5,
         backgroundColor: '#FFF',
+        borderRadius: 20,
     },
     retryContainer: {
         flex: 1,

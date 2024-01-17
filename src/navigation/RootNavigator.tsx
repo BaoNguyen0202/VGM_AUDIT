@@ -1,12 +1,12 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Icon } from 'react-native-paper';
-import Home from '../screens/HomeScreen';
+import Home from '../screens/Home/HomeScreen';
 import Sync from '../screens/Sync';
 
-import HomeCard from '../components/HomeCard';
+import HomeCard from '../components/VisitCard/HomeCard';
 import DetailScreen from '../screens/DetailScreen';
-import MoreScreen from '../screens/MoreScreen';
+import MoreScreen from '../screens/LookMore/MoreScreen';
 
 const Tab = createBottomTabNavigator();
 // color: '#881111'

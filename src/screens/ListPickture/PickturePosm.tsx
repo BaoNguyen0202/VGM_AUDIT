@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, ScrollView, PermissionsAndroid, Image, View, Alert } from 'react-native';
-import { ActivityIndicator, Button, Surface, Text } from 'react-native-paper';
+import { StyleSheet, ScrollView, PermissionsAndroid, Image, View, Alert, TouchableOpacity } from 'react-native';
+import { ActivityIndicator, Button, Icon, IconButton, Surface, Text } from 'react-native-paper';
 import { openImagePickerCamera } from '../../utils/camera.utils';
 import { CommonUtils } from '../../utils';
 import { ApiConstant, AppConstant, ScreenConstant } from '../../const';
@@ -89,7 +89,21 @@ const PickturePosm = ({ navigation, route }: any) => {
             setLoading(false);
         }
     };
-
+    const _renderHeader = () => {
+        return (
+            <View style={styles.headerContainer}>
+                <IconButton
+                    icon="arrow-left"
+                    iconColor="#000"
+                    size={24}
+                    onPress={() => {
+                        navigation.goBack();
+                    }}
+                />
+                <Text style={styles.headerLabel}>Chụp ảnh</Text>
+            </View>
+        );
+    };
     const handleSave = async () => {
         const uploadedImageUrls = await uploadImages(capturedImages);
         const selectedProduct = route.params?.selectedProduct || {};
@@ -104,26 +118,38 @@ const PickturePosm = ({ navigation, route }: any) => {
     };
     return (
         <View style={styles.container}>
+            <View>{_renderHeader()}</View>
+
             {loading ? (
                 <ActivityIndicator style={styles.loader} animating={true} color={'#000'} size="large" />
             ) : (
-                <ScrollView horizontal contentContainerStyle={styles.scrollViewContainer}>
-                    <Surface style={styles.surface} elevation={4}>
-                        <Button onPress={() => handleCheckin()}>+</Button>
-                    </Surface>
-                    {showTextSurface && (
+                <View style={styles.cardImage}>
+                    <ScrollView horizontal contentContainerStyle={styles.scrollViewContainer}>
                         <Surface style={styles.surface} elevation={4}>
-                            <Text>images</Text>
+                            <TouchableOpacity onPress={() => handleCheckin()}>
+                                <Icon source={'camera-outline'} size={24} />
+                            </TouchableOpacity>
                         </Surface>
-                    )}
-                    {capturedImages.map((uri, index) => (
-                        <Surface key={index} style={styles.surface} elevation={4}>
-                            <Image source={{ uri }} style={styles.image} />
-                        </Surface>
-                    ))}
-                </ScrollView>
+                        {showTextSurface && (
+                            <Surface style={styles.surface} elevation={4}>
+                                <Text>images</Text>
+                            </Surface>
+                        )}
+                        {capturedImages.map((uri, index) => (
+                            <Surface key={index} style={styles.surface} elevation={4}>
+                                <Image source={{ uri }} style={styles.image} />
+                            </Surface>
+                        ))}
+                    </ScrollView>
+                </View>
             )}
-            <Button onPress={() => handleSave()}>Save</Button>
+            <Button
+                style={{ position: 'absolute', bottom: 20, width: '100%', backgroundColor: '#881111' }}
+                textColor="#FFF"
+                onPress={() => handleSave()}
+            >
+                Hoàn thành
+            </Button>
         </View>
     );
 };
@@ -136,6 +162,7 @@ const styles = StyleSheet.create({
     scrollViewContainer: {
         flexDirection: 'row',
         paddingVertical: 16,
+        paddingHorizontal: 16,
     },
     surface: {
         height: 120,
@@ -143,6 +170,9 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         marginRight: 16,
+        shadowColor: '#FFF',
+        borderRadius: 20,
+        backgroundColor: '#f4f6f8',
     },
     image: {
         width: '100%',
@@ -154,6 +184,24 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    cardImage: {
+        backgroundColor: '#FFF',
+        borderRadius: 20,
+        margin: 16,
+    },
+    headerContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+    },
+    headerLabel: {
+        fontSize: 24,
+        color: '#000',
+        textAlign: 'center',
+        flex: 1,
+        marginLeft: -24,
     },
 });
 

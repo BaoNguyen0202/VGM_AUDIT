@@ -19,10 +19,10 @@ const ScenarioPOSM = ({ route, navigation }: any) => {
     const LeftContent = () => <Icon source={'note-check-outline'} size={24} color="#22c55e" />;
 
     const fetchData = async () => {
-        try {
-            let success = false;
+        let success = false;
 
-            while (!success) {
+        while (!success) {
+            try {
                 const { scenarioId, scenarioName } = route.params;
                 const [doctype, scenarioIdWithoutDoctype] = scenarioId.split('::');
                 setScenarioIdWithoutDoctype(scenarioIdWithoutDoctype);
@@ -40,11 +40,11 @@ const ScenarioPOSM = ({ route, navigation }: any) => {
                 } else {
                     console.error('Error fetching product data:', response.statusText);
                 }
+            } catch (error) {
+                console.error('Error fetching product data:', error);
+            } finally {
+                setLoading(false);
             }
-        } catch (error) {
-            console.error('Error fetching product data:', error);
-        } finally {
-            setLoading(false);
         }
     };
     const handleRetry = () => {

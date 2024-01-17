@@ -91,10 +91,10 @@ const HomeCard = ({ navigation }: any) => {
     };
 
     const fetchData = async () => {
-        try {
-            let success = false;
+        let success = false;
 
-            while (!success) {
+        while (!success) {
+            try {
                 const apiKey = await CommonUtils.storage.getString(AppConstant.Api_key);
                 const apiSecret = await CommonUtils.storage.getString(AppConstant.Api_secret);
 
@@ -127,11 +127,11 @@ const HomeCard = ({ navigation }: any) => {
                 } else {
                     console.error('Invalid response format:', response.data);
                 }
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            } finally {
+                setLoading(false);
             }
-        } catch (error) {
-            console.error('Error fetching data:', error);
-        } finally {
-            setLoading(false);
         }
     };
 

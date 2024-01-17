@@ -20,10 +20,10 @@ const ScenarioScreen = ({ route, navigation }: any) => {
     );
 
     const fetchData = async () => {
-        try {
-            let success = false;
+        let success = false;
 
-            while (!success) {
+        while (!success) {
+            try {
                 const { scenarioName } = route.params;
                 const response = await axios.get(ApiConstant.GET_SCENARIO + scenarioName);
                 const data = response.data;
@@ -37,11 +37,11 @@ const ScenarioScreen = ({ route, navigation }: any) => {
                 } else {
                     console.error('Error fetching product data:', response.statusText);
                 }
+            } catch (error) {
+                console.error('Error fetching product data:', error);
+            } finally {
+                setLoading(false);
             }
-        } catch (error) {
-            console.error('Error fetching product data:', error);
-        } finally {
-            setLoading(false);
         }
     };
     const handleRetry = () => {

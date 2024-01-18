@@ -22,6 +22,7 @@ import PicktureAsset from './src/screens/ListPickture/PicktureAsset';
 import PickturePosm from './src/screens/ListPickture/PickturePosm';
 import { ScreenConstant } from './src/const';
 import ProfileScreen from './src/screens/Profile/ProfileScreen';
+import AppNavigationContainer from './src/navigation';
 
 MapLibreGL.setAccessToken(null);
 const Stack = createStackNavigator();
@@ -35,72 +36,7 @@ const newTheme = {
 const App = () => {
     return (
         <PaperProvider theme={newTheme}>
-            <NavigationContainer>
-                <Stack.Navigator>
-                    <Stack.Screen
-                        name={ScreenConstant.LOG_IN}
-                        component={LoginScreen}
-                        options={{ headerShown: false }}
-                    />
-                    <Stack.Screen
-                        name={ScreenConstant.FORGOTPASSWORD}
-                        component={ForgotPasswordScreen}
-                        options={{ headerShown: false }}
-                    />
-                    <Stack.Screen
-                        name={ScreenConstant.CHANGE_PASS}
-                        component={ChangePasswordScreen}
-                        options={{ headerShown: false }}
-                    />
-                    <Stack.Screen
-                        name={ScreenConstant.ROOT}
-                        component={RootNavigator}
-                        options={{ headerShown: false }}
-                    />
-                    <Stack.Screen name={ScreenConstant.PRODUCT} component={Product} options={{ headerShown: false }} />
-                    <Stack.Screen name={ScreenConstant.HOME} component={Home} options={{ headerShown: false }} />
-                    <Stack.Screen
-                        name={ScreenConstant.SCENARIO}
-                        component={ScenarioScreen}
-                        options={{ headerShown: false }}
-                    />
-                    <Stack.Screen
-                        name={ScreenConstant.SCENARIOSKU}
-                        component={ScenarioSKU}
-                        options={{ headerShown: false }}
-                    />
-                    <Stack.Screen
-                        name={ScreenConstant.SCENARIOASSET}
-                        component={ScenarioASSET}
-                        options={{ headerShown: false }}
-                    />
-                    <Stack.Screen
-                        name={ScreenConstant.SCENARIOPOSM}
-                        component={ScenarioPOSM}
-                        options={{ headerShown: false }}
-                    />
-                    <Stack.Screen
-                        name={ScreenConstant.PCKTURE_SKU}
-                        component={Pickture}
-                        options={{ headerShown: false }}
-                    />
-                    <Stack.Screen
-                        name={ScreenConstant.PCKTURE_ASSET}
-                        component={PicktureAsset}
-                        options={{ headerShown: false }}
-                    />
-                    <Stack.Screen
-                        name={ScreenConstant.PCKTURE_POSM}
-                        component={PickturePosm}
-                        options={{ headerShown: false }}
-                    />
-                    <Stack.Screen
-                        name={ScreenConstant.PROFILE}
-                        component={ProfileScreen}
-                        options={{ headerShown: false }}
-                    />
-                </Stack.Navigator>
-            </NavigationContainer>
+            <AppNavigationContainer></AppNavigationContainer>
         </PaperProvider>
     );
 };

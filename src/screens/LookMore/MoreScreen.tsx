@@ -76,9 +76,9 @@ const MoreScreen = ({ navigation }: any) => {
                             <TouchableNativeFeedback
                                 key={widget.id}
                                 onPress={() => {
-                                    if (widget.navigate === ScreenConstant.LOG_IN) {
-                                        clearUserAndPass();
-                                    }
+                                    // if (widget.navigate === ScreenConstant.LOG_IN) {
+                                    //     clearUserAndPass();
+                                    // }
                                     navigation.navigate(widget.navigate);
                                 }}
                             >

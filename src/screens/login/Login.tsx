@@ -43,27 +43,32 @@ const LoginScreen = ({ navigation }: any) => {
     }, []);
 
     const handleAutoLogin = async (autoUserName: string, autoPassword: string) => {
-        try {
-            const response = await axios.post(ApiConstant.POST_USER_LOGIN, {
-                usr: autoUserName,
-                pwd: autoPassword,
-                device_name: Platform.OS,
-                device_id: '12345',
-            });
+        let success = false;
 
-            if (response.status === ApiConstant.STT_OK) {
-                const result = response.data.result;
-                CommonUtils.storage.set(AppConstant.Api_key, result.key_details.api_key);
-                CommonUtils.storage.set(AppConstant.Api_secret, result.key_details.api_secret);
-
-                await CommonUtils.dismissKeyboard(() => {
-                    navigation.navigate(ScreenConstant.ROOT);
+        while (!success) {
+            try {
+                const response = await axios.post(ApiConstant.POST_USER_LOGIN, {
+                    usr: autoUserName,
+                    pwd: autoPassword,
+                    device_name: Platform.OS,
+                    device_id: '12345',
                 });
-            } else {
-                console.error('Auto Login failed:', response.data);
+
+                if (response.status === ApiConstant.STT_OK) {
+                    const result = response.data.result;
+                    CommonUtils.storage.set(AppConstant.Api_key, result.key_details.api_key);
+                    CommonUtils.storage.set(AppConstant.Api_secret, result.key_details.api_secret);
+                    success = true;
+
+                    await CommonUtils.dismissKeyboard(() => {
+                        navigation.navigate(ScreenConstant.ROOT);
+                    });
+                } else {
+                    console.error('Auto Login failed:', response.data);
+                }
+            } catch (error) {
+                console.error('Auto Login failed:', error);
             }
-        } catch (error) {
-            console.error('Auto Login failed:', error);
         }
     };
 

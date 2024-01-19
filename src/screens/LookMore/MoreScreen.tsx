@@ -118,14 +118,20 @@ const styles = StyleSheet.create({
         marginVertical: 20,
     },
     walletContainer: {
+        shadowColor: '#919EAB',
+        shadowOffset: {
+            width: 0,
+            height: 12,
+        },
+        shadowOpacity: 0.3,
+        shadowRadius: 24,
+        elevation: 12,
         alignItems: 'center',
         justifyContent: 'space-between',
-        elevation: 5,
         paddingVertical: 20,
         backgroundColor: '#FFF',
         borderRadius: 20,
         flexDirection: 'column',
-        shadowColor: '#FFF',
     },
     otherIconsContainer: {
         alignItems: 'center',

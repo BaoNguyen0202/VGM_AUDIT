@@ -1,5 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { FlatList, StyleSheet, View, ActivityIndicator, Alert, TouchableOpacity } from 'react-native';
+import {
+    FlatList,
+    StyleSheet,
+    View,
+    ActivityIndicator,
+    Alert,
+    TouchableOpacity,
+    ViewStyle,
+    TextStyle,
+} from 'react-native';
 import { Card, Text, Avatar, Button, IconButton, Icon } from 'react-native-paper';
 import axios from 'axios';
 import { ApiConstant, AppConstant, ScreenConstant } from '../../const';
@@ -198,6 +207,7 @@ const HomeCard = ({ navigation }: any) => {
             </View>
         );
     };
+
     const renderItem = ({ item }: any) => (
         <Card style={styles.card} mode="contained">
             <Card.Title

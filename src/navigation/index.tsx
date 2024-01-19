@@ -17,6 +17,7 @@ import Pickture from '../screens/ListPickture/Pickture';
 import PicktureAsset from '../screens/ListPickture/PicktureAsset';
 import PickturePosm from '../screens/ListPickture/PickturePosm';
 import ProfileScreen from '../screens/Profile/ProfileScreen';
+import SelectOrganizer from '../screens/login/SelectOrganizer';
 
 const AppNavigationContainer = () => {
     const Stack = createStackNavigator();
@@ -25,6 +26,7 @@ const AppNavigationContainer = () => {
         <NavigationContainer>
             <Stack.Navigator>
                 <Stack.Screen name={ScreenConstant.LOG_IN} component={LoginScreen} options={{ headerShown: false }} />
+
                 <Stack.Screen
                     name={ScreenConstant.FORGOTPASSWORD}
                     component={ForgotPasswordScreen}
@@ -33,6 +35,11 @@ const AppNavigationContainer = () => {
                 <Stack.Screen
                     name={ScreenConstant.CHANGE_PASS}
                     component={ChangePasswordScreen}
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name={ScreenConstant.ORGANIZER}
+                    component={SelectOrganizer}
                     options={{ headerShown: false }}
                 />
                 <Stack.Screen name={ScreenConstant.ROOT} component={RootNavigator} options={{ headerShown: false }} />

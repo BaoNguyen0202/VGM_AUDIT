@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, Alert, Platform, Image, Keyboard, KeyboardEvent } from 'react-native';
-import { TextInput, Button, Text, Provider as PaperProvider } from 'react-native-paper';
+import { View, StyleSheet, Alert, Platform, Image, Keyboard, KeyboardEvent, TouchableOpacity } from 'react-native';
+import { TextInput, Button, Text, Provider as PaperProvider, IconButton } from 'react-native-paper';
 import { ApiConstant, AppConstant, ScreenConstant } from '../../const';
 import axios from 'axios';
 import { useMMKVString } from 'react-native-mmkv';
@@ -112,14 +112,23 @@ const LoginScreen = ({ navigation }: any) => {
     const handleKeyboardDidHide = () => {
         setKeyboardVisible(false);
     };
-
+    const _renderLabel = () => {
+        return <Text style={styles.headerLabel}>Đăng nhập</Text>;
+    };
     return (
-        <View style={styles.headerContainer}>
-            <Image source={ImageAssets.InitLogo} style={styles.logo} />
+        <View style={styles.container}>
+            {_renderLabel()}
             <View style={styles.container}>
-                <TextInput label="Name" value={userName} onChangeText={setUserName} style={styles.input} />
                 <TextInput
-                    label="Password"
+                    mode="outlined"
+                    label="Tên đăng nhập"
+                    value={userName}
+                    onChangeText={setUserName}
+                    style={styles.input}
+                />
+                <TextInput
+                    label="Mật khẩu"
+                    mode="outlined"
                     value={password}
                     onChangeText={setPassword}
                     secureTextEntry={secureTextEntry}
@@ -131,17 +140,23 @@ const LoginScreen = ({ navigation }: any) => {
                         />
                     }
                 />
-                <Button mode="contained" onPress={handleLogin} style={styles.button}>
-                    Log In
-                </Button>
                 <Text style={styles.text}>
-                    No account yet?{' '}
                     <Text onPress={() => navigation.navigate(ScreenConstant.FORGOTPASSWORD)} style={styles.link}>
-                        Forgot Password
+                        Quên mật khẩu
                     </Text>
                 </Text>
+                <Button mode="contained" onPress={handleLogin} style={styles.button}>
+                    Đăng nhập
+                </Button>
+                <Text
+                    onPress={() => {
+                        navigation.navigate(ScreenConstant.ORGANIZER);
+                    }}
+                    style={styles.textBold}
+                >
+                    Đăng nhập với tổ chức khác
+                </Text>
             </View>
-            {!isKeyboardVisible && <Text style={styles.versionText}>VGM Version 0.0.1</Text>}
         </View>
     );
 };
@@ -149,27 +164,37 @@ const LoginScreen = ({ navigation }: any) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center',
-        padding: 16,
+        backgroundColor: '#f4f6f8',
+        padding: 8,
     },
     headerContainer: {
-        flex: 1,
+        marginTop: 46,
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginHorizontal: 16,
+    },
+    headerLabel: {
+        marginTop: 60,
+        fontSize: 24,
+        color: '#000',
+        fontWeight: 'bold',
+        paddingHorizontal: 8,
     },
     input: {
-        marginBottom: 16,
+        marginVertical: 16,
         backgroundColor: '#FFF',
     },
     button: {
         marginTop: 8,
-        backgroundColor: '#1abc9c',
+        backgroundColor: '#881111',
     },
     text: {
-        marginTop: 16,
-        textAlign: 'center',
+        textAlign: 'right',
         color: '#000',
+        marginVertical: 8,
     },
     link: {
-        color: 'blue',
+        color: '#881111',
     },
     linearGradient: {
         flex: 1,
@@ -185,6 +210,11 @@ const styles = StyleSheet.create({
         fontSize: 16,
         textAlign: 'center',
         marginBottom: 16,
+    },
+    textBold: {
+        textAlign: 'center',
+        marginVertical: 16,
+        color: 'gray',
     },
 });
 

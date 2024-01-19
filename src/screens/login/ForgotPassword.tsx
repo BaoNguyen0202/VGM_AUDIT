@@ -1,17 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, Image, Keyboard, KeyboardEvent } from 'react-native';
-import { TextInput, Button, Text } from 'react-native-paper';
+import { TextInput, Button, Text, IconButton } from 'react-native-paper';
 import { ScreenConstant } from '../../const';
-import LinearGradient from 'react-native-linear-gradient';
-import { ImageAssets } from '../../assets';
 
 const ForgotPasswordScreen = ({ navigation }: any) => {
     const [email, setEmail] = useState('');
     const [isKeyboardVisible, setKeyboardVisible] = useState(false);
 
     const handleForgotPassword = () => {
-        // Thực hiện xác nhận email và gửi yêu cầu quên mật khẩu
-        // Sau khi yêu cầu quên mật khẩu được gửi đi thành công, bạn có thể hiển thị thông báo hoặc điều hướng người dùng đến một màn hình khác
         console.log('Yêu cầu quên mật khẩu cho email:', email);
     };
     useEffect(() => {
@@ -31,24 +27,48 @@ const ForgotPasswordScreen = ({ navigation }: any) => {
     const handleKeyboardDidHide = () => {
         setKeyboardVisible(false);
     };
-
-    return (
-        <View style={styles.headerContainer}>
-            <Image source={ImageAssets.InitLogo} style={styles.logo} />
-
-            <View style={styles.container}>
-                <TextInput label="Email" value={email} onChangeText={(text) => setEmail(text)} style={styles.input} />
-                <Button mode="contained" onPress={handleForgotPassword} style={styles.button}>
-                    Forgot password
-                </Button>
-                <Text style={styles.text}>
-                    Remembered password?{' '}
-                    <Text onPress={() => navigation.navigate(ScreenConstant.LOG_IN)} style={styles.link}>
-                        Log In
-                    </Text>
-                </Text>
+    const _renderHeader = () => {
+        return (
+            <View style={styles.headerContainer}>
+                <IconButton
+                    icon="arrow-left"
+                    iconColor="#000"
+                    size={24}
+                    onPress={() => {
+                        navigation.goBack();
+                    }}
+                />
             </View>
-            {!isKeyboardVisible && <Text style={styles.versionText}>VGM Version 0.0.1</Text>}
+        );
+    };
+    const _renderLabel = () => {
+        return <Text style={styles.headerLabel}>Quên mật khẩu</Text>;
+    };
+    return (
+        <View style={styles.container}>
+            <View>{_renderHeader()}</View>
+
+            {_renderLabel()}
+            <Text
+                onPress={() => {
+                    navigation.navigate(ScreenConstant.ORGANIZER);
+                }}
+                style={styles.textBold}
+            >
+                Nhập email đăng ký với hệ thống để xác thực
+            </Text>
+            <View style={styles.container}>
+                <TextInput
+                    mode="outlined"
+                    label="Email"
+                    value={email}
+                    onChangeText={(text) => setEmail(text)}
+                    style={styles.input}
+                />
+                <Button mode="contained" onPress={handleForgotPassword} style={styles.button}>
+                    Xác thực
+                </Button>
+            </View>
         </View>
     );
 };
@@ -56,19 +76,19 @@ const ForgotPasswordScreen = ({ navigation }: any) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center',
         padding: 16,
+        backgroundColor: '#f4f6f8',
     },
     headerContainer: {
         flex: 1,
     },
     input: {
-        marginBottom: 16,
+        marginVertical: 16,
         backgroundColor: '#FFF',
     },
     button: {
         marginTop: 8,
-        backgroundColor: '#1abc9c',
+        backgroundColor: '#881111',
     },
     text: {
         marginTop: 16,
@@ -92,6 +112,18 @@ const styles = StyleSheet.create({
         fontSize: 16,
         textAlign: 'center',
         marginBottom: 16,
+    },
+    headerLabel: {
+        marginTop: 50,
+        fontSize: 24,
+        color: '#000',
+        fontWeight: 'bold',
+        paddingHorizontal: 16,
+    },
+    textBold: {
+        color: 'gray',
+        paddingHorizontal: 16,
+        marginTop: 8,
     },
 });
 

@@ -1,4 +1,5 @@
 export const LOG_IN = 'Login';
+export const ORGANIZER = 'Organizer';
 export const CHANGE_PASS = 'ChangePass';
 export const ROOT = 'Root';
 export const FORGOTPASSWORD = 'ForgotPassWord';

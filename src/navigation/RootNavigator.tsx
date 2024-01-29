@@ -25,7 +25,7 @@ const RootNavigator = () => {
                 }}
             />
             <Tab.Screen
-                name="Viếng thăm"
+                name="HomeCard"
                 component={HomeCard}
                 options={{
                     tabBarLabel: 'Viếng thăm',

@@ -18,6 +18,8 @@ import PicktureAsset from '../screens/ListPickture/PicktureAsset';
 import PickturePosm from '../screens/ListPickture/PickturePosm';
 import ProfileScreen from '../screens/Profile/ProfileScreen';
 import SelectOrganizer from '../screens/login/SelectOrganizer';
+import Information from '../screens/Profile/component/Information';
+import HomeCard from '../components/VisitCard/HomeCard';
 
 const AppNavigationContainer = () => {
     const Stack = createStackNavigator();
@@ -45,6 +47,7 @@ const AppNavigationContainer = () => {
                 <Stack.Screen name={ScreenConstant.ROOT} component={RootNavigator} options={{ headerShown: false }} />
                 <Stack.Screen name={ScreenConstant.PRODUCT} component={Product} options={{ headerShown: false }} />
                 <Stack.Screen name={ScreenConstant.HOME} component={Home} options={{ headerShown: false }} />
+                <Stack.Screen name={ScreenConstant.HOMECARD} component={HomeCard} options={{ headerShown: false }} />
                 <Stack.Screen
                     name={ScreenConstant.SCENARIO}
                     component={ScenarioScreen}
@@ -79,6 +82,11 @@ const AppNavigationContainer = () => {
                 <Stack.Screen
                     name={ScreenConstant.PROFILE}
                     component={ProfileScreen}
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name={ScreenConstant.INFORMATION}
+                    component={Information}
                     options={{ headerShown: false }}
                 />
             </Stack.Navigator>

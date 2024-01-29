@@ -184,6 +184,9 @@ export interface UserData {
     email: string;
     first_name: string;
     username: string;
+    address?: string;
+    birtDay?: string;
+    avatar?: string;
 }
 export interface FormAnswer {
     docstatus: number;

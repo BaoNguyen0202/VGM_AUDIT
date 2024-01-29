@@ -89,6 +89,14 @@ const PicktureAsset = ({ navigation, route }: any) => {
             setLoading(false);
         }
     };
+    const handleDeleteImage = (index: number) => {
+        const updatedImages = [...capturedImages];
+        updatedImages.splice(index, 1);
+        setCapturedImages(updatedImages);
+    };
+    const handleDeleteAllImage = () => {
+        setCapturedImages([]);
+    };
     const _renderHeader = () => {
         return (
             <View style={styles.headerContainer}>
@@ -137,13 +145,19 @@ const PicktureAsset = ({ navigation, route }: any) => {
                         {capturedImages.map((uri, index) => (
                             <Surface key={index} style={styles.surface} elevation={4}>
                                 <Image source={{ uri }} style={styles.image} />
+                                <TouchableOpacity style={styles.deleteIcon} onPress={() => handleDeleteImage(index)}>
+                                    <Icon source="close-circle" color="#FFF" size={24} />
+                                </TouchableOpacity>
                             </Surface>
                         ))}
                     </ScrollView>
+                    <TouchableOpacity style={styles.deleteIcon} onPress={() => handleDeleteAllImage()}>
+                        <Icon source="trash-can-outline" color="#000" size={24} />
+                    </TouchableOpacity>
                 </View>
             )}
             <Button
-                style={{ position: 'absolute', bottom: 20, width: '100%', backgroundColor: '#881111' }}
+                style={{ position: 'absolute', bottom: 20, width: '100%', backgroundColor: '#22c55e' }}
                 textColor="#FFF"
                 onPress={() => handleSave()}
             >
@@ -201,6 +215,12 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         flex: 1,
         marginLeft: -24,
+    },
+    deleteIcon: {
+        position: 'absolute',
+        top: 0,
+        right: 0,
+        backgroundColor: 'transparent',
     },
 });
 

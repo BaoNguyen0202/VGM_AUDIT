@@ -5,11 +5,9 @@ import { View as NativeView } from 'react-native';
 import { AppConstant, ScreenConstant } from '../../const';
 import { useMMKVString } from 'react-native-mmkv';
 import { IWidget } from '../../modal';
+import { styles } from './moreScreen.style';
 
 const MoreScreen = ({ navigation }: any) => {
-    const [userNameStore, setUserNameStore] = useMMKVString(AppConstant.userNameStore);
-    const [passwordStore, setPasswordStore] = useMMKVString(AppConstant.passwordStore);
-
     const DataWidget: IWidget[] = [
         {
             id: 1,
@@ -23,7 +21,7 @@ const MoreScreen = ({ navigation }: any) => {
             name: 'Sản phẩm',
             icon: 'briefcase-outline',
             color: '#f5bc6c',
-            navigate: ScreenConstant.LOG_IN,
+            navigate: '',
         },
         {
             id: 3,
@@ -54,10 +52,6 @@ const MoreScreen = ({ navigation }: any) => {
             navigate: '',
         },
     ];
-    const clearUserAndPass = () => {
-        setUserNameStore('');
-        setPasswordStore('');
-    };
     const _renderHeader = () => {
         return (
             <View style={styles.headerContainer}>
@@ -83,7 +77,9 @@ const MoreScreen = ({ navigation }: any) => {
                                 }}
                             >
                                 <View style={[styles.otherIconsContainer, { flex: 1 }]}>
-                                    <Icon source={widget.icon} size={28} color={widget.color} />
+                                    <View style={styles.BorderIcon}>
+                                        <Icon source={widget.icon} size={28} color={widget.color} />
+                                    </View>
                                     <Text style={styles.iconText}>{widget.name}</Text>
                                 </View>
                             </TouchableNativeFeedback>
@@ -96,7 +92,9 @@ const MoreScreen = ({ navigation }: any) => {
                                 onPress={() => navigation.navigate(widget.navigate)}
                             >
                                 <View style={[styles.otherIconsContainer, { flex: 1 }]}>
-                                    <Icon source={widget.icon} size={28} color={widget.color} />
+                                    <View style={styles.BorderIcon}>
+                                        <Icon source={widget.icon} size={28} color={widget.color} />
+                                    </View>
                                     <Text style={styles.iconText}>{widget.name}</Text>
                                 </View>
                             </TouchableNativeFeedback>
@@ -107,59 +105,5 @@ const MoreScreen = ({ navigation }: any) => {
         </NativeView>
     );
 };
-
-const styles = StyleSheet.create({
-    safeArea: {
-        flex: 1,
-    },
-    mainLayout: {
-        flex: 1,
-        paddingHorizontal: 16,
-        marginVertical: 20,
-    },
-    walletContainer: {
-        shadowColor: '#919EAB',
-        shadowOffset: {
-            width: 0,
-            height: 12,
-        },
-        shadowOpacity: 0.3,
-        shadowRadius: 24,
-        elevation: 12,
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingVertical: 20,
-        backgroundColor: '#FFF',
-        borderRadius: 20,
-        flexDirection: 'column',
-    },
-    otherIconsContainer: {
-        alignItems: 'center',
-        paddingHorizontal: 26,
-        paddingVertical: 8,
-    },
-    iconText: {
-        fontSize: 14,
-        color: 'gray',
-        marginTop: 8,
-    },
-    headerContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-    },
-    headerLabel: {
-        fontSize: 24,
-        color: '#000',
-        marginLeft: 8,
-        alignSelf: 'center',
-    },
-    rowContainer: {
-        flexDirection: 'row',
-        width: '100%',
-    },
-});
 
 export default MoreScreen;

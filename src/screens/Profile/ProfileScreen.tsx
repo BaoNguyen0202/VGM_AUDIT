@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, FlatList } from 'react-native';
+import { View, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { ActivityIndicator, Avatar, Button, Card, Icon, IconButton, Text } from 'react-native-paper';
 import { UserData } from '../../modal';
 import { CommonUtils } from '../../utils';
 import { ApiConstant, AppConstant, ScreenConstant } from '../../const';
 import axios from 'axios';
 import { useMMKVString } from 'react-native-mmkv';
+import { styles } from './profile.style';
 const ProfileScreen = ({ navigation }: any) => {
     const [userData, setUserData] = useState<UserData | null>(null);
     const [loading, setLoading] = useState(true);
@@ -62,15 +63,18 @@ const ProfileScreen = ({ navigation }: any) => {
     const renderListContent = () => {
         return (
             <Card style={styles.card} mode="contained">
-                <View>
-                    <Button
-                        onPress={() => {
-                            handleLogout();
-                        }}
-                    >
-                        Logout
-                    </Button>
-                </View>
+                <TouchableOpacity style={styles.row} onPress={() => navigation.navigate(ScreenConstant.INFORMATION)}>
+                    <Icon source={'account-outline'} size={24} color="#12a364" />
+                    <Text style={{ paddingHorizontal: 8 }}>Thông tin tài khoản</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.row}>
+                    <Icon source={'cog-outline'} size={24} color="#2cb8db" />
+                    <Text style={{ paddingHorizontal: 8 }}>Cài đặt tài khoản</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.row} onPress={() => handleLogout()}>
+                    <Icon source={'exit-to-app'} size={24} color="#e03d3d" />
+                    <Text style={{ paddingHorizontal: 8 }}>Đăng xuất</Text>
+                </TouchableOpacity>
             </Card>
         );
     };
@@ -99,78 +103,9 @@ const ProfileScreen = ({ navigation }: any) => {
                 </View>
             )}
 
-            <View>{renderListContent()}</View>
+            <View style={{ margin: 24 }}>{renderListContent()}</View>
         </View>
     );
 };
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#f4f6f8',
-    },
-    containView: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginLeft: 30,
-    },
-    containLabel: {
-        marginLeft: 12,
-    },
-    containSecondView: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginTop: 4,
-    },
-    textPrimary: {
-        fontSize: 16,
-        fontWeight: '500',
-        color: '#000',
-    },
-    textSecondary: {
-        fontSize: 14,
-        color: 'gray',
-        fontWeight: '400',
-    },
-    icon: {
-        backgroundColor: 'transparent',
-        marginRight: 4,
-    },
-    retryContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    retryText: {
-        fontSize: 16,
-    },
-    headerContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-    },
-    headerLabel: {
-        fontSize: 24,
-        color: '#000',
-        textAlign: 'center',
-        flex: 1,
-        marginLeft: -24,
-    },
-    loader: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    flatListContainer: {
-        paddingHorizontal: 16,
-    },
-    card: {
-        marginTop: 8,
-        marginBottom: 5,
-        backgroundColor: '#FFF',
-        borderRadius: 20,
-    },
-});
 
 export default ProfileScreen;

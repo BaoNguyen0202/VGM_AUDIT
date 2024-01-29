@@ -28,7 +28,7 @@ export const openImagePickerCamera = (callBack: (uri: string) => void) => {
     }).finally();
 };
 
-export const openImagePicker = (callBack: () => void, isUri?: boolean) => {
+export const openImagePicker = (callBack: (uri: string) => void, isUri?: boolean) => {
     const options: ImageLibraryOptions = {
         mediaType: 'photo',
         includeBase64: true,

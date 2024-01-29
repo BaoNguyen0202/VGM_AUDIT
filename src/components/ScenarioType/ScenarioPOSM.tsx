@@ -19,32 +19,27 @@ const ScenarioPOSM = ({ route, navigation }: any) => {
     const LeftContent = () => <Icon source={'note-check-outline'} size={24} color="#22c55e" />;
 
     const fetchData = async () => {
-        let success = false;
+        try {
+            const { scenarioId, scenarioName } = route.params;
+            const [doctype, scenarioIdWithoutDoctype] = scenarioId.split('::');
+            setScenarioIdWithoutDoctype(scenarioIdWithoutDoctype);
+            const response = await axios.get(
+                ApiConstant.GET_PRODUCT + `doctype=${doctype}&name=${scenarioIdWithoutDoctype}`,
+            );
+            const data = response.data;
 
-        while (!success) {
-            try {
-                const { scenarioId, scenarioName } = route.params;
-                const [doctype, scenarioIdWithoutDoctype] = scenarioId.split('::');
-                setScenarioIdWithoutDoctype(scenarioIdWithoutDoctype);
-                const response = await axios.get(
-                    ApiConstant.GET_PRODUCT + `doctype=${doctype}&name=${scenarioIdWithoutDoctype}`,
-                );
-                const data = response.data;
-
-                if (response.status === 200) {
-                    const scenarioLinks = data._link_titles;
-                    const scenarioList = Object.entries(scenarioLinks).map(([key, value]) => ({ key, value }));
-                    setProductData(scenarioList);
-                    setResponseData(data);
-                    success = true;
-                } else {
-                    console.error('Error fetching product data:', response.statusText);
-                }
-            } catch (error) {
-                console.error('Error fetching product data:', error);
-            } finally {
-                setLoading(false);
+            if (response.status === 200) {
+                const scenarioLinks = data._link_titles;
+                const scenarioList = Object.entries(scenarioLinks).map(([key, value]) => ({ key, value }));
+                setProductData(scenarioList);
+                setResponseData(data);
+            } else {
+                console.error('Error fetching product data:', response.statusText);
             }
+        } catch (error) {
+            console.error('Error fetching product data:', error);
+        } finally {
+            setLoading(false);
         }
     };
     const handleRetry = () => {
@@ -314,7 +309,7 @@ const styles = StyleSheet.create({
         height: 40,
         marginBottom: 20,
         borderColor: '#4697e8',
-        backgroundColor: '#881111',
+        backgroundColor: '#22c55e',
     },
     headerContainer: {
         flexDirection: 'row',

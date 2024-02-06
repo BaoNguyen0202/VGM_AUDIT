@@ -204,8 +204,7 @@ const Information = ({ navigation }: any) => {
                 }
             }
             const data = {
-                // birth_date: birthDateInput,
-                birth_date: '',
+                birth_date: birthDateInput,
                 full_name: userData?.full_name,
                 user_image: uploadedImageUrls,
             };

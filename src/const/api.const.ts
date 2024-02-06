@@ -13,14 +13,14 @@ export const STT_NOT_FOUND = 404;
 export const STT_REQUEST_TIME_OUT = 408;
 export const STT_INTERNAL_SERVER = 500;
 export const STT_NOT_MODIFIED = 304;
-const URL = 'http://cloud.vgm.ai:8000';
+export const URL = 'http://cloud.vgm.ai:8000';
 const URL_PREFIX = '/api/method/my_app';
 //POST_OLD
 export const POST_USER_LOGOUT = URL_PREFIX + '.auth.logout';
 export const POST_USER_ORGANIZATION = '/api/method/mbw_ess_registration.api.ess.organization.get_info_organization';
 export const POST_RESET_PASSWORD = URL_PREFIX + '.auth.reset_password';
 
-export const PUT_USER_PROFILE = URL_PREFIX + '.user.update_profile';
+export const PUT_USER_PROFILE = URL + URL_PREFIX + '.user.update_profile';
 
 //POST
 export const POST_USER_LOGIN = URL + URL_PREFIX + '.auth.login';

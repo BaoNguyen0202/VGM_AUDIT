@@ -86,12 +86,7 @@ const ProfileScreen = ({ navigation }: any) => {
             <View>{_renderHeader()}</View>
             {userData && (
                 <View style={styles.containView}>
-                    <Avatar.Image
-                        size={48}
-                        source={{
-                            uri: 'https://picture.vn/wp-content/uploads/2015/12/da-lat.png',
-                        }}
-                    />
+                    <Avatar.Image size={48} source={{ uri: userData?.user_image }} />
                     <View style={styles.containLabel}>
                         <Text style={styles.textPrimary}>{userData.full_name}</Text>
                         <View style={styles.containSecondView}>

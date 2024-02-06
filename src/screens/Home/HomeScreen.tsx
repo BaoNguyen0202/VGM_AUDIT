@@ -1,19 +1,53 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { View, StyleSheet, TouchableNativeFeedback, TouchableOpacity, Image, ViewStyle, TextStyle } from 'react-native';
 import { Avatar, Icon, IconButton, Text } from 'react-native-paper';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { AppConstant, ScreenConstant } from '../../const';
+import { ApiConstant, AppConstant, ScreenConstant } from '../../const';
 import AppContainer from '../../components/CustomApp/AppContainer';
 import { ImageAssets } from '../../assets';
 import ProgressCircle from 'react-native-progress-circle';
 import BarChartStatistical from './BarChart';
 import CardLoading from './component/CardLoading';
-import { IWidget, VisitListItemType } from '../../modal';
+import { IWidget, UserData, VisitListItemType } from '../../modal';
 import { styles } from './home.style';
+import { CommonUtils } from '../../utils';
+import axios from 'axios';
 
 const Home = ({ navigation }: any) => {
     const [loading, setLoading] = useState<boolean>(false);
+    const [userData, setUserData] = useState<UserData | null>(null);
+    const fetchUserData = async () => {
+        let success = false;
 
+        while (!success) {
+            try {
+                const apiKey = await CommonUtils.storage.getString(AppConstant.Api_key);
+                const apiSecret = await CommonUtils.storage.getString(AppConstant.Api_secret);
+
+                if (apiKey && apiSecret) {
+                    const response = await axios.get(ApiConstant.GET_USER_PROFILE, {
+                        headers: {
+                            Authorization: CommonUtils.Auth_header(apiKey, apiSecret).Authorization,
+                        },
+                    });
+
+                    if (response.status === 200) {
+                        setUserData(response.data.result as UserData);
+                        success = true;
+                    } else {
+                        console.error('Failed to fetch user profile:', response.data);
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching user profile:', error);
+            }
+        }
+
+        setLoading(false);
+    };
+    useEffect(() => {
+        fetchUserData();
+    }, []);
     const DataWidget: IWidget[] = [
         {
             id: 1,
@@ -165,13 +199,15 @@ const Home = ({ navigation }: any) => {
     return (
         <SafeAreaView style={styles.safeArea} edges={['top']}>
             <View style={styles.header}>
-                <View style={styles.userInfoContainer}>
-                    <Avatar.Image size={48} source={{ uri: 'https://example.com/avatar.jpg' }} />
-                    <View style={styles.containerIfU}>
-                        <Text style={styles.greetingText}>Xin chào,</Text>
-                        <Text style={styles.userName}>Nguyễn Bảo</Text>
+                {userData && (
+                    <View style={styles.userInfoContainer}>
+                        <Avatar.Image size={48} source={{ uri: userData?.user_image }} />
+                        <View style={styles.containerIfU}>
+                            <Text style={styles.greetingText}>Xin chào,</Text>
+                            <Text style={styles.userName}>{userData.full_name}</Text>
+                        </View>
                     </View>
-                </View>
+                )}
                 <View>
                     <IconButton icon="bell-outline" iconColor={'#000'} size={20} onPress={() => {}} />
                 </View>

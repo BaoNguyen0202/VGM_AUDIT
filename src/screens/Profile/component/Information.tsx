@@ -8,6 +8,7 @@ import { ActivityIndicator, Avatar, Button, Icon, IconButton, Modal, TextInput, 
 import { ImageAssets } from '../../../assets';
 import { openImagePicker, openImagePickerCamera } from '../../../utils/camera.utils';
 import { styles } from './information.style';
+import RNFetchBlob from 'rn-fetch-blob';
 
 const Information = ({ navigation }: any) => {
     const [userData, setUserData] = useState<UserData | null>(null);
@@ -15,6 +16,9 @@ const Information = ({ navigation }: any) => {
     const [modalVisible, setModalVisible] = useState(false);
     const apiKey = CommonUtils.storage.getString(AppConstant.Api_key);
     const apiSecret = CommonUtils.storage.getString(AppConstant.Api_secret);
+    const [birthDateInput, setBirthDateInput] = useState<string>('');
+    const [isServerImage, setIsServerImage] = useState(true);
+
     const fetchUserData = async () => {
         let success = false;
 
@@ -31,6 +35,8 @@ const Information = ({ navigation }: any) => {
                     });
                     if (response.status === 200) {
                         setUserData(response.data.result as UserData);
+                        console.log(userData);
+
                         success = true;
                     } else {
                         console.error('Failed to fetch user profile:', response.data);
@@ -44,15 +50,18 @@ const Information = ({ navigation }: any) => {
         setLoading(false);
     };
     const handleInputChange = (field: string, value: string) => {
-        setUserData((prevData: UserData | null) => ({
-            ...(prevData as UserData),
-            [field]: value,
-        }));
+        if (field === 'birth_date') {
+            setBirthDateInput(value);
+        } else {
+            setUserData((prevData: UserData | null) => ({
+                ...(prevData as UserData),
+                [field]: value,
+            }));
+        }
     };
     useEffect(() => {
         fetchUserData();
     }, []);
-
     const handleChooseImage = () => {
         setModalVisible(true);
     };
@@ -82,9 +91,11 @@ const Information = ({ navigation }: any) => {
                 avatar: uri,
             }));
             console.log('Image captured:', uri);
+            setIsServerImage(false); // Người dùng đã chọn ảnh mới, không phải từ server
             setModalVisible(false);
         });
     };
+
     const openImage = () => {
         openImagePicker((uri: any) => {
             setUserData((prevData: UserData | null) => ({
@@ -92,9 +103,11 @@ const Information = ({ navigation }: any) => {
                 avatar: uri,
             }));
             console.log('Image picked from gallery:', uri);
+            setIsServerImage(false); // Người dùng đã chọn ảnh mới, không phải từ server
             setModalVisible(false);
         });
     };
+
     const requestCameraPermission = async () => {
         try {
             const requestResult = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.CAMERA);
@@ -156,17 +169,63 @@ const Information = ({ navigation }: any) => {
         console.error('Max upload time reached. Image upload failed.');
         return null;
     };
+    const fetchImageAsBase64 = async (imageUrl: any) => {
+        try {
+            const response = await RNFetchBlob.fetch('GET', imageUrl);
+            const base64Data = response.base64();
+            return base64Data;
+        } catch (error: any) {
+            console.error('Error fetching image as base64:', error.message);
+            throw error;
+        }
+    };
 
+    const convertLocalFileToBase64 = async (filePath: any) => {
+        try {
+            const base64Data = await RNFetchBlob.fs.readFile(filePath, 'base64');
+            return base64Data;
+        } catch (error: any) {
+            console.error('Error converting local file to base64:', error.message);
+            throw error;
+        }
+    };
     const handleSave = async () => {
         try {
-            const uploadedImageUrls = await uploadImages(userData?.avatar);
-            if (uploadedImageUrls) {
-                console.log('Image uploaded successfully. Image URL:', uploadedImageUrls);
-            } else {
-                console.log('Image upload failed.');
+            let uploadedImageUrls = userData?.user_image;
+            if (!isServerImage) {
+                // Check if the URL is a local file path
+                if (userData?.avatar && userData.avatar.startsWith('file://')) {
+                    const base64Image = await convertLocalFileToBase64(userData.avatar);
+                    uploadedImageUrls = base64Image;
+                } else {
+                    // Fetch the image as a base64 string
+                    const base64Image = await fetchImageAsBase64(userData?.avatar);
+                    uploadedImageUrls = base64Image;
+                }
             }
-        } catch (error) {
-            console.error('Error in handleSave:', error);
+            const data = {
+                // birth_date: birthDateInput,
+                birth_date: '',
+                full_name: userData?.full_name,
+                user_image: uploadedImageUrls,
+            };
+            const dataPost = {
+                doc: JSON.stringify(data),
+                action: 'Save',
+            };
+            if (!apiKey || !apiSecret) throw new Error('API key or secret not available');
+            const response = await axios.put(ApiConstant.PUT_USER_PROFILE, data, {
+                headers: CommonUtils.Auth_header(apiKey, apiSecret),
+            });
+
+            if (response.status === 200) {
+                console.log('saved Information successful', response.data);
+                Alert.alert('thanh cong');
+            } else {
+                console.error('saved Information faild');
+            }
+        } catch (error: any) {
+            console.error('Error in handleSave:', error.message);
         }
     };
     const _renderHeader = () => {
@@ -193,7 +252,13 @@ const Information = ({ navigation }: any) => {
                 <View style={styles.contentContainer}>
                     <Avatar.Image
                         size={140}
-                        source={userData?.avatar ? { uri: userData?.avatar } : ImageAssets.UserDefault}
+                        source={
+                            userData?.avatar
+                                ? { uri: userData?.avatar }
+                                : userData?.user_image
+                                ? { uri: userData?.user_image }
+                                : ImageAssets.UserDefault
+                        }
                     />
                     <Text style={{ marginVertical: 8, color: '#12a364' }} onPress={handleChooseImage}>
                         Thay ảnh
@@ -221,14 +286,10 @@ const Information = ({ navigation }: any) => {
                         <TextInput
                             textColor="#000"
                             style={styles.countInput}
-                            label={'Địa chỉ:'}
-                            onChangeText={(text) => handleInputChange('address', text)}
-                        />
-                        <TextInput
-                            textColor="#000"
-                            style={styles.countInput}
                             label={'Ngày sinh:'}
-                            onChangeText={(text) => handleInputChange('birtDay', text)}
+                            placeholder="yyyy-mm-dd"
+                            value={userData?.birth_date}
+                            onChangeText={(text) => handleInputChange('birth_date', text)}
                         />
                     </View>
                     <View style={styles.saveButtonContainer}>

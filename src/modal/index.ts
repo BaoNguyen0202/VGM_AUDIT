@@ -185,8 +185,9 @@ export interface UserData {
     first_name: string;
     username: string;
     address?: string;
-    birtDay?: string;
+    birth_date?: string;
     avatar?: string;
+    user_image?: string;
 }
 export interface FormAnswer {
     docstatus: number;

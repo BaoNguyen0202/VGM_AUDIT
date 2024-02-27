@@ -50,14 +50,10 @@ const Information = ({ navigation }: any) => {
         setLoading(false);
     };
     const handleInputChange = (field: string, value: string) => {
-        if (field === 'birth_date') {
-            setBirthDateInput(value);
-        } else {
-            setUserData((prevData: UserData | null) => ({
-                ...(prevData as UserData),
-                [field]: value,
-            }));
-        }
+        setUserData((prevData: UserData | null) => ({
+            ...(prevData as UserData),
+            [field]: value,
+        }));
     };
     useEffect(() => {
         fetchUserData();
@@ -118,57 +114,57 @@ const Information = ({ navigation }: any) => {
             console.error('Error checking or requesting camera permission:', error);
         }
     };
-    const uploadImages = async (img: any) => {
-        if (!img) {
-            console.error('No image provided for upload.');
-            return null;
-        }
+    // const uploadImages = async (img: any) => {
+    //     if (!img) {
+    //         console.error('No image provided for upload.');
+    //         return null;
+    //     }
 
-        const maxTimeInSeconds = 5;
-        const startTime = Date.now();
+    //     const maxTimeInSeconds = 5;
+    //     const startTime = Date.now();
 
-        while (Date.now() - startTime < maxTimeInSeconds * 1000) {
-            try {
-                setLoading(true);
-                const capturedImageUri = img;
-                const fileExtension = capturedImageUri.split('.').pop();
-                const fileName = `my_profile_${Date.now()}.${fileExtension}`;
-                const formData = new FormData();
-                formData.append('file', {
-                    uri: capturedImageUri,
-                    type: `image/${fileExtension}`,
-                    name: fileName,
-                });
-                formData.append('is_private', 0);
-                formData.append('folder', 'Home');
-                formData.append('doctype', 'User');
-                formData.append('fieldname', 'user_image');
-                formData.append('docname', userData?.email);
+    //     while (Date.now() - startTime < maxTimeInSeconds * 1000) {
+    //         try {
+    //             setLoading(true);
+    //             const capturedImageUri = img;
+    //             const fileExtension = capturedImageUri.split('.').pop();
+    //             const fileName = `my_profile_${Date.now()}.${fileExtension}`;
+    //             const formData = new FormData();
+    //             formData.append('file', {
+    //                 uri: capturedImageUri,
+    //                 type: `image/${fileExtension}`,
+    //                 name: fileName,
+    //             });
+    //             formData.append('is_private', 0);
+    //             formData.append('folder', 'Home');
+    //             formData.append('doctype', 'User');
+    //             formData.append('fieldname', 'user_image');
+    //             formData.append('docname', userData?.email);
 
-                if (!apiKey || !apiSecret) {
-                    throw new Error('API key or secret not available');
-                }
+    //             if (!apiKey || !apiSecret) {
+    //                 throw new Error('API key or secret not available');
+    //             }
 
-                const response = await axios.post(ApiConstant.UPDATE_FILE_IMAGE, formData, {
-                    headers: CommonUtils.Header_Image(apiKey, apiSecret),
-                });
+    //             const response = await axios.post(ApiConstant.UPDATE_FILE_IMAGE, formData, {
+    //                 headers: CommonUtils.Header_Image(apiKey, apiSecret),
+    //             });
 
-                if (response.status === 200 && response.data.message.file_url) {
-                    console.log('Upload successful');
-                    return response.data.message.file_url;
-                } else {
-                    console.error('Error uploading image: Invalid status or undefined file_url');
-                }
-            } catch (uploadError: any) {
-                console.error('Error during image upload attempt:', uploadError);
-            } finally {
-                setLoading(false);
-            }
-        }
-        Alert.alert('Lỗi hệ thống vui lòng thử lại!');
-        console.error('Max upload time reached. Image upload failed.');
-        return null;
-    };
+    //             if (response.status === 200 && response.data.message.file_url) {
+    //                 console.log('Upload successful');
+    //                 return response.data.message.file_url;
+    //             } else {
+    //                 console.error('Error uploading image: Invalid status or undefined file_url');
+    //             }
+    //         } catch (uploadError: any) {
+    //             console.error('Error during image upload attempt:', uploadError);
+    //         } finally {
+    //             setLoading(false);
+    //         }
+    //     }
+    //     Alert.alert('Lỗi hệ thống vui lòng thử lại!');
+    //     console.error('Max upload time reached. Image upload failed.');
+    //     return null;
+    // };
     const fetchImageAsBase64 = async (imageUrl: any) => {
         try {
             const response = await RNFetchBlob.fetch('GET', imageUrl);
@@ -193,12 +189,10 @@ const Information = ({ navigation }: any) => {
         try {
             let uploadedImageUrls = userData?.user_image;
             if (!isServerImage) {
-                // Check if the URL is a local file path
                 if (userData?.avatar && userData.avatar.startsWith('file://')) {
                     const base64Image = await convertLocalFileToBase64(userData.avatar);
                     uploadedImageUrls = base64Image;
                 } else {
-                    // Fetch the image as a base64 string
                     const base64Image = await fetchImageAsBase64(userData?.avatar);
                     uploadedImageUrls = base64Image;
                 }
@@ -208,10 +202,10 @@ const Information = ({ navigation }: any) => {
                 full_name: userData?.full_name,
                 user_image: uploadedImageUrls,
             };
-            const dataPost = {
-                doc: JSON.stringify(data),
-                action: 'Save',
-            };
+            // const dataPost = {
+            //     doc: JSON.stringify(data),
+            //     action: 'Save',
+            // };
             if (!apiKey || !apiSecret) throw new Error('API key or secret not available');
             const response = await axios.put(ApiConstant.PUT_USER_PROFILE, data, {
                 headers: CommonUtils.Auth_header(apiKey, apiSecret),
